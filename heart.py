@@ -1,4 +1,4 @@
-import json, csv, os
+import json, csv, os, pathlib
 import pandas as pd
 from datetime import datetime
 
@@ -69,13 +69,74 @@ def write_json(hr_data, filename):
     except Exception as e:
         return None
 
-def to_dataframe(hr_data):
+def string_date_range(hr_data):
     """
-    Using the list of tuples created from `parse_heart_json`, constructs a Pandas dataframe
-    and returns it.
+    Using the list of tuples from the `parse_heart_json` method, determines the date range
+    of data present. Two outputs are possible:
+
+    1) Data for only one day: Will return the one day in month-day-year format: i.e. dec16-2019
+    2) Data spanning multiple days: Will return the range in month-day-year-month-day-year format: i.e. dec16-2019-dec20-2019
     """
 
-    return pd.DataFrame(data = hr_data, columns = ["Timestamp", "HeartRate"])
+    try:
+        begin_date = hr_data[0][0] # gets first element of the tuple (datetime) from first item in list
+        end_date = hr_data[-1][0] # gets first element of the tuple (datetime) from last item in list
+    except IndexError:
+        print("An empty list of tuples was passed -- check input data")
+    
+    begin_string = begin_date.strftime("%b%d-%Y")
+    end_string = end_date.strftime("%b%d-%Y")
+
+    if (begin_string == end_string):
+        return(begin_string)
+    else:
+        return("{0}-{1}".format(begin_string, end_string))
+
+def export_filepath(hr_data, output_dir, filetype):
+    """
+    Constructs the file path to be exported, based on user preferences.
+    """
+
+    # 1) Get the date range for this dataset
+    filename = string_date_range(hr_data)
+
+    # 2) Combine that with the directory path and file type passed in by the user
+    if output_dir:
+        fp = pathlib.Path(output_dir)
+        if fp.is_dir():
+            fp = fp / f'{filename}.{filetype}'
+            print(fp)
+        else:
+            raise Exception("Path passed in to --directory does not exist!")
+    else:
+        fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
+
+    return(fp)
+
+def export_data(hr_data, output_dir, filetype):
+    """
+    Exports the passed in list of tuples from `parse_heart_json` to either a JSON or CSV file.
+    This function calls all other functions that:
+
+    * Generate the file name based on the date range of the data passed in
+    * Create a full file path to write to based on user input
+    * Write the CSV/JSON file to the directory specified
+
+    Returns the file path created if successful, None otherwise.
+    """
+
+    # Get the full file name to write to
+    file_path = export_filepath(hr_data, output_dir, filetype)
+
+    # Extract the extension from the filename
+    extension = file_path.suffix
+
+    if (extension == ".csv"):
+        return(write_csv(hr_data, file_path))
+    elif (extension == ".json"):
+        return(write_json(hr_data, file_path))
+    else:
+        return None
 
 
 
