@@ -1,5 +1,4 @@
 import json, csv, os, pathlib
-import pandas as pd
 from datetime import datetime
 
 def valid_heart_json(input_json):
