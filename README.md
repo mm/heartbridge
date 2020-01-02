@@ -17,7 +17,12 @@ On the first run, the shortcut will prompt for access to your Health data (parti
 
 ## How to use
 
-Clone this repository to your computer, and install required packages:
+Clone this repository to your computer, and install required packages in your shell using:
+
+```bash
+git clone https://github.com/mm/heartbridge.git && cd heartbridge
+pip install -r requirements.txt
+```
 
 Afterwards, run `app.py`, specifying where you want export files stored and in what format you want them exported to (JSON/CSV). For example, this command:
 
@@ -27,9 +32,11 @@ python3 app.py --directory ~/Desktop --type csv
 
 ... will save all exported files to the desktop in CSV format. If no arguments are specified, the script will output files in CSV format to the current working directory. Please make sure the folder exists before running the script.
 
-Make note of the REST endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://Matt-Mac-mini.local:5000/heartrate```.
+Make note of the endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://matt-mac-mini.local:5000/heartrate```:
 
-On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/2d24033f74bb493c8017e4986e6233bf). It will ask you what the REST endpoint URL you noted in (3) is. 
+![The line of terminal output "Now accepting POST requests at http://matt-mac-mini.local:5000/heartrate" tells me that my endpoint URL is http://matt-mac-mini.local:5000/heartrate](img/endpoint-image.png)
+
+On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/2d24033f74bb493c8017e4986e6233bf). It will ask you what the REST endpoint URL you just noted is.
 
 Run the shortcut, select the date range you want to cover, and the data will export! Stop running the script whenever you're finished exporting all the data you need. 
 

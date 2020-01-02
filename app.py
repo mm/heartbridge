@@ -23,4 +23,4 @@ def process_health_data():
 if __name__ == '__main__':
     args = parser.parse_args()
     print('\033[94m'+f'Now accepting POST requests at http://{socket.gethostname()}:5000/heartrate'+'\033[0m')
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0', port=5000)
