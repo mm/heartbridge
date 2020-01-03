@@ -14,7 +14,8 @@ def valid_heart_json(input_json):
         if('hrDates' in input_json and 'hrValues' in input_json):
             if(len(input_json['hrDates']) == len(input_json['hrValues'])):
                 return True
-
+    
+    print("The JSON file passed in is missing data -- please check the output from Shortcuts.")
     return False
 
 def parse_heart_json(input_json):
@@ -24,13 +25,21 @@ def parse_heart_json(input_json):
     - hrValues: Contains an array of all heart rates (sorted by timestamp, ascending)
 
     This converts the dictionary into a list of tuples: each containing a timestamp
-    and the corresponding HR reading.
+    and the corresponding HR reading. If parsing fails, None is returned.
     """
 
-    hr_dates = [datetime.strptime(x, '%d-%m-%Y %H:%M:%S') for x in input_json['hrDates']]
-    hr_values = [float(x) for x in input_json['hrValues']]
+    try:
+        hr_dates = [datetime.strptime(x, '%d-%m-%Y %H:%M:%S') for x in input_json['hrDates']]
+        hr_values = [float(x) for x in input_json['hrValues']]
+        all_data = list(zip(hr_dates, hr_values)) 
 
-    return(list(zip(hr_dates, hr_values)))
+        if(len(all_data) == 0):
+            print("No health samples found in data. Nothing will be exported.")
+
+        return(all_data)
+    except ValueError as ve:
+        print("Error parsing the dates or values returned from the Shortcuts app: {}".format(ve))
+        return(None)
 
 def write_csv(hr_data, filename):
     """
@@ -47,6 +56,7 @@ def write_csv(hr_data, filename):
             writer.writerows(hr_data)
             return(os.path.realpath(hr_export.name))
     except Exception as e:
+        print("An error occured while writing the CSV file: {}".format(e))
         return(None)
 
 def write_json(hr_data, filename):
@@ -66,7 +76,8 @@ def write_json(hr_data, filename):
             json.dump(hr_dicts, hr_export)
             return(os.path.realpath(hr_export.name))
     except Exception as e:
-        return None
+        print("An error occured while writing the JSON file: {}".format(e))
+        return(None)
 
 def string_date_range(hr_data):
     """
@@ -81,7 +92,11 @@ def string_date_range(hr_data):
         begin_date = hr_data[0][0] # gets first element of the tuple (datetime) from first item in list
         end_date = hr_data[-1][0] # gets first element of the tuple (datetime) from last item in list
     except IndexError:
-        print("An empty list of tuples was passed -- check input data")
+        print("An empty list of tuples was passed -- please check input data")
+        return(None)
+    except Exception as e:
+        print("Failed to determine the date range for the data passed in: {}".format(e))
+        return(None)
     
     begin_string = begin_date.strftime("%b%d-%Y")
     end_string = end_date.strftime("%b%d-%Y")
@@ -94,23 +109,28 @@ def string_date_range(hr_data):
 def export_filepath(hr_data, output_dir, filetype):
     """
     Constructs the file path to be exported, based on user preferences.
+    Will return None if the file path could not be constructed.
     """
 
     # 1) Get the date range for this dataset
     filename = string_date_range(hr_data)
 
     # 2) Combine that with the directory path and file type passed in by the user
-    if output_dir:
-        fp = pathlib.Path(output_dir)
-        if fp.is_dir():
-            fp = fp / f'{filename}.{filetype}'
-            print(fp)
+    if filename:
+        if output_dir:
+            # File will reside in the directory passed in by the user
+            fp = pathlib.Path(output_dir)
+            if fp.is_dir():
+                fp = fp / f'{filename}.{filetype}'
+                print(fp)
+            else:
+                print("Path passed in to --directory does not exist!")
         else:
-            raise Exception("Path passed in to --directory does not exist!")
-    else:
-        fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
-
-    return(fp)
+            # File will reside in the current working directory of the script
+            fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
+        return(fp)
+    
+    return(None)
 
 def export_data(hr_data, output_dir, filetype):
     """
@@ -128,14 +148,15 @@ def export_data(hr_data, output_dir, filetype):
     file_path = export_filepath(hr_data, output_dir, filetype)
 
     # Extract the extension from the filename
-    extension = file_path.suffix
-
-    if (extension == ".csv"):
-        return(write_csv(hr_data, file_path))
-    elif (extension == ".json"):
-        return(write_json(hr_data, file_path))
-    else:
-        return None
+    if file_path:
+        extension = file_path.suffix
+        if (extension == ".csv"):
+            return(write_csv(hr_data, file_path))
+        elif (extension == ".json"):
+            return(write_json(hr_data, file_path))
+    
+    print("No data was written to disk due to an error -- please check the output above.")
+    return None
 
 
 
