@@ -38,6 +38,19 @@ class TestSampleParsing(unittest.TestCase):
         sample_tuple = (datetime.datetime.strptime(self.normal_input['hrDates'][4], '%d-%m-%Y %H:%M:%S'), float(self.normal_input['hrValues'][4]))
         self.assertEqual(sample_tuple, self.parsed_input[4])
 
+class TestFileMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.one_date_set = [(datetime.datetime(2019, 12, 2), 40), (datetime.datetime(2019, 12, 2), 45), (datetime.datetime(2019, 12, 2), 94)]
+        self.one_sample = [(datetime.datetime(2019, 12, 2), 40)]
+        self.multiple_date_set = [(datetime.datetime(2019, 12, 2), 40), (datetime.datetime(2019, 12, 3), 45), (datetime.datetime(2020, 12, 9), 94)]
+
+    def test_recognizing_single_date(self):
+        self.assertEqual(heart.string_date_range(self.one_date_set), "Dec02-2019")
+        self.assertEqual(heart.string_date_range(self.one_sample), "Dec02-2019")
+    
+    def test_recognizing_date_range(self):
+        self.assertEqual(heart.string_date_range(self.multiple_date_set), "Dec02-2019-Dec09-2020")
 
 if __name__ == '__main__':
     unittest.main()

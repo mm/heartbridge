@@ -84,8 +84,8 @@ def string_date_range(hr_data):
     Using the list of tuples from the `parse_heart_json` method, determines the date range
     of data present. Two outputs are possible:
 
-    1) Data for only one day: Will return the one day in month-day-year format: i.e. dec16-2019
-    2) Data spanning multiple days: Will return the range in month-day-year-month-day-year format: i.e. dec16-2019-dec20-2019
+    1) Data for only one day: Will return the one day in month-day-year format: i.e. Dec16-2019
+    2) Data spanning multiple days: Will return the range in month-day-year-month-day-year format: i.e. Dec16-2019-Dec20-2019
     """
 
     try:
