@@ -144,19 +144,26 @@ def export_data(hr_data, output_dir, filetype):
     Returns the file path created if successful, None otherwise.
     """
 
-    # Get the full file name to write to
-    file_path = export_filepath(hr_data, output_dir, filetype)
+    # Check if the output directory and file type haven't been specified.
+    # If this is the case, the application is just being imported (likely for testing),
+    # so the behaviour is to not write anything to disk (a dry run)
 
-    # Extract the extension from the filename
-    if file_path:
-        extension = file_path.suffix
-        if (extension == ".csv"):
-            return(write_csv(hr_data, file_path))
-        elif (extension == ".json"):
-            return(write_json(hr_data, file_path))
-    
-    print("No data was written to disk due to an error -- please check the output above.")
-    return None
+    if (output_dir is None and filetype is None):
+        # Get the file name without an extension, and return that instead
+        fn = string_date_range(hr_data)
+        return(fn)
+    else:
+        # Get the full file name to write to
+        file_path = export_filepath(hr_data, output_dir, filetype)
+
+        if file_path:
+            if (filetype == "csv"):
+                return(write_csv(hr_data, file_path))
+            elif (filetype == "json"):
+                return(write_json(hr_data, file_path))
+        
+        print("No data was written to disk due to an error -- please check the output above.")
+        return None
 
 
 
