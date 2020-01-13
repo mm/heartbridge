@@ -40,7 +40,7 @@ python3 app.py --directory ~/Desktop --type csv
 
 ![The line of terminal output "Now accepting POST requests at http://matt-mac-mini.local:5000/heartrate" tells me that my endpoint URL is http://matt-mac-mini.local:5000/heartrate](img/endpoint-image.png)
 
-4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/2d24033f74bb493c8017e4986e6233bf). It will ask you what the API endpoint URL you just noted is.
+4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/18aa2c0beb2642a0bfaa65a20a5bb148). It will ask you what the API endpoint URL you just noted is.
 
 5. Run the shortcut! You will be prompted to select the date range you want to cover. The end date of the date range you specify is not included in the data returned. For example, to get all data for January 1st, 2020:
 
