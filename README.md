@@ -8,7 +8,7 @@ Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id91524
 
 This Python script can receive data from Shortcuts, automatically export it to the directory of your choosing (in CSV or JSON format) and automatically name files according to what date range it covers. Exported files contain a time stamp ("Start Date" in Health) and heart rate ("Value" in Health).
 
-**_Note_**: This is designed to be run on your local computer! It wasn't made to be deployed to a server (yet). Only run if you trust the devices on your local network.
+**_Note_**: This is designed to be run on your local computer! It wasn't made to be deployed to a server (yet), and was more of an experiment than anything for me. Only run if you trust the devices on your local network.
 
 ## Requirements
 

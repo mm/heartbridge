@@ -122,14 +122,12 @@ def export_filepath(hr_data, output_dir, filetype):
             fp = pathlib.Path(output_dir)
             if fp.is_dir():
                 fp = fp / f'{filename}.{filetype}'
-                print(fp)
             else:
                 print("Path passed in to --directory does not exist!")
         else:
             # File will reside in the current working directory of the script
             fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
         return(fp)
-    
     return(None)
 
 def export_data(hr_data, output_dir, filetype):

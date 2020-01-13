@@ -26,9 +26,16 @@ def process_health_data():
                     print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
                     return make_response((jsonify({'status': 'Successful', 'fileName': export_filename, 'numberOfSamples': len(parsed_data)}), 200))
     
-    return make_response(('Invalid data', 400))
+    # By default, will return an invalid data status if the export was not successful (may want to change this in the future)
+    return make_response((jsonify({'status': 'Invalid data'}), 400))
 
 def check_args(args):
+    """
+    Validates command-line arguments passed in to the script.
+    In particular, ensures the --type argument is one of csv or json.
+    Returns True if checks pass, False otherwise.
+    """
+    
     if(args.type in ['csv', 'json']):
         return True
     else:
