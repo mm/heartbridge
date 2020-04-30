@@ -21,6 +21,5 @@ class TestHealthSampleWorkflow(unittest.TestCase):
             self.assertEqual(json_response['fileName'], 'Dec16-2019')
             self.assertEqual(json_response['numberOfSamples'], 6)
 
-
 if __name__ == '__main__':
     unittest.main()
