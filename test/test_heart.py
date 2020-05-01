@@ -1,5 +1,6 @@
-import unittest, datetime
-import heart
+import unittest, datetime, os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from heartbridge import heart
 
 class TestSampleLoading(unittest.TestCase):
 
