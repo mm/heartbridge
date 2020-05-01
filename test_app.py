@@ -1,6 +1,5 @@
 import unittest
 import app
-from flask import jsonify, request
 
 class TestHealthSampleWorkflow(unittest.TestCase):
 
@@ -10,16 +9,7 @@ class TestHealthSampleWorkflow(unittest.TestCase):
             "hrValues": ["74", "83", "89", "157", "95", "80"]
         }
 
-        test_app = app.app
-
-        test_app.testing = True
-        with test_app.test_client() as c:
-            rv = c.post('/heartrate', json = testing_data)
-            json_response = rv.get_json()
-            self.assertIsInstance(json_response, dict, msg = "The /heartrate method must return valid JSON!")
-            self.assertEqual(json_response['status'], 'Successful', msg = "The /heartrate method must return 'Successful' in its JSON response for the 'status' key.")
-            self.assertEqual(json_response['fileName'], 'Dec16-2019')
-            self.assertEqual(json_response['numberOfSamples'], 6)
+        self.assertTrue(app.process_health_data(testing_data), msg = 'process_health_data should return True if processing data succeeded')
 
 if __name__ == '__main__':
     unittest.main()

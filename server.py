@@ -44,13 +44,13 @@ def run(port=8888):
     Starts the HTTP server and listens for a request.
     If request was made properly, will return the JSON payload of the request so it can be processed by another function.
 
-    Args:
-        port: The port to listen for requests on (defaults to 8888)
+    Arguments
+        * port:    The port to listen on (defaults to 8888)
     """
 
-    with HTTPServer(('localhost', port), JSONRequestHandler) as httpd:
+    with HTTPServer(('0.0.0.0', port), JSONRequestHandler) as httpd:
         port = httpd.socket.getsockname()[1]
         hostname = socket.gethostname()
-        print("Now accepting POST requests at http://{}:{}.".format(hostname, port))
+        print("\U000026A1 Waiting for a POST request at http://{}:{}.".format(hostname, port))
         httpd.handle_request()
         return(httpd.payload)
