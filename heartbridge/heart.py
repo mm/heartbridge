@@ -110,7 +110,7 @@ def export_filepath(filename, output_dir, filetype):
     """
     Constructs the file path to be exported, based on user preferences.
     Will return None if the file path could not be constructed. Will check if
-    the target directory exists beforehand.
+    the target directory exists beforehand and create if necessary.
 
     Arguments:
         * filename (str): The name of the file to be exported (no extension)
@@ -123,9 +123,20 @@ def export_filepath(filename, output_dir, filetype):
             # File will reside in the directory passed in by the user
             fp = pathlib.Path(output_dir)
             if fp.is_dir():
+                # If the user passed in a directory that already exists, great! Construct a full path based on it.
                 fp = fp / f'{filename}.{filetype}'
+            elif fp.is_file():
+                # If the user passed a file by accident, reject it.
+                print("Directory passed into --directory is a file! Please specify a directory.")
+                return(None)
             else:
-                print("Directory passed in to --directory does not exist!")
+                # The directory must not exist yet -- create it and then construct the path.
+                try:
+                    os.mkdir(fp)
+                    fp = fp / f'{filename}.{filetype}'
+                except Exception as e:
+                    print("Exception occured while creating directory: {}".format(e))
+                    return(None)                
         else:
             # File will reside in the current working directory and will return filename.filetype
             fp = str(filename)+'.'+str(filetype)

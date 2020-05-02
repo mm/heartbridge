@@ -3,7 +3,7 @@ from heartbridge import heart, server
 
 # Add command-line arguments:
 parser = argparse.ArgumentParser(description = "Opens a temporary REST endpoint to send heart rate data from Shortcuts to your computer.")
-parser.add_argument("--directory", help = "Set the output directory for exported files. Defaults to current directory.")
+parser.add_argument("--directory", help = "Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.")
 parser.add_argument("--type", help = "Set the output file type. Can be csv or json. Defaults to csv.", default = "csv")
 parser.add_argument("--port", help = "Set the port to listen for requests on. Defaults to 8888.", default = 8888)
 
@@ -36,32 +36,36 @@ def process_health_data(heartrate_dict, output_dir = None, output_format = None)
 
 def check_args(args):
     """
-    Validates command-line arguments passed in to the script.
-    In particular, ensures the --type argument is one of csv or json.
+    Validates command-line arguments passed in to the script:
+    * Ensures the --type argument is one of csv or json.
+    * Ensures the port to listen on is between 1024 and 65535.
+
+    Arguments:
+        * args: The args namespace produced by ```parse_args```
+
     Returns True if checks pass, False otherwise.
     """
-    
-    if(args.type in ['csv', 'json']):
-        return True
-    else:
+    errors = 0
+
+    if(args.type not in ['csv', 'json']):
+        errors += 1
         print("Please specify your file type with --type as csv or json.")
-        return False
+    
+    if(int(args.port) <= 1023 or int(args.port) > 65535):
+        errors += 1
+        print("Please specify an integer port between 1024 and 65535.")
+
+    if errors == 0:
+        return True
+    return False
 
 def main():  
-    # These will get set to the values passed in via the CLI if this script is run as the main module (i.e. not imported)
-    output_dir = None
-    output_format = None
-
+    # Parse arguments received from the command line:
     args = parser.parse_args()
     # If a user passes in CSV/JSON, correct it to csv/json
     args.type = args.type.lower()
 
-    print(args)
-
     if check_args(args):
-        # These are referenced in the process_health_data function:
-        output_dir = args.directory
-        output_format = args.type
         try:
             # This loop will create an HTTPServer instance to listen for incoming POST data from iOS Shortcuts.
             # Once data is received and deserialized, it is returned and the instance is deleted.
@@ -70,8 +74,11 @@ def main():
                 # Listen on the port specified for a POST request containing the heart rate data payload
                 output_data = server.run(port=int(args.port))
                 # Process the data, exporting it to the directory/file type of choosing
-                success = process_health_data(output_data, output_dir = output_dir, output_format = output_format)
+                success = process_health_data(output_data, output_dir = args.directory, output_format = args.type)
                 if not success:
+                    # process_health_data returns a boolean letting us know if it worked or not:
                     print("Health data processing failed.")
         except KeyboardInterrupt:
             print("\nKeyboard interrupt received, stopping.")
+    else:
+        exit(1)
