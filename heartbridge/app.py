@@ -13,7 +13,9 @@ def process_health_data(heartrate_dict, output_dir = None, output_format = None)
     Will print informational messages about where the file was exported. Returns True in the case of a success, False otherwise.
 
     Arguments:
-        * heartrate_dict: The deserialized JSON of heart rate dates / readings captured by the HTTP endpoint.
+        * heartrate_dict (dict): The deserialized JSON of heart rate dates / readings captured by the HTTP endpoint.
+        * output_dir (str): The path of the directory to output files to
+        * output_format (str): Either csv or json -- the file format the export will be in
     """
 
     if heart.valid_heart_json(heartrate_dict):
@@ -53,6 +55,8 @@ def main():
     args = parser.parse_args()
     # If a user passes in CSV/JSON, correct it to csv/json
     args.type = args.type.lower()
+
+    print(args)
 
     if check_args(args):
         # These are referenced in the process_health_data function:

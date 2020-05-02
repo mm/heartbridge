@@ -106,27 +106,29 @@ def string_date_range(hr_data):
     else:
         return("{0}-{1}".format(begin_string, end_string))
 
-def export_filepath(hr_data, output_dir, filetype):
+def export_filepath(filename, output_dir, filetype):
     """
     Constructs the file path to be exported, based on user preferences.
-    Will return None if the file path could not be constructed.
+    Will return None if the file path could not be constructed. Will check if
+    the target directory exists beforehand.
+
+    Arguments:
+        * filename (str): The name of the file to be exported (no extension)
+        * output_dir (str): The directory to export the file to
+        * filetype (str): Either csv or json
     """
 
-    # 1) Get the date range for this dataset
-    filename = string_date_range(hr_data)
-
-    # 2) Combine that with the directory path and file type passed in by the user
-    if filename:
+    if filename and filetype:
         if output_dir:
             # File will reside in the directory passed in by the user
             fp = pathlib.Path(output_dir)
             if fp.is_dir():
                 fp = fp / f'{filename}.{filetype}'
             else:
-                print("Path passed in to --directory does not exist!")
+                print("Directory passed in to --directory does not exist!")
         else:
-            # File will reside in the current working directory of the script
-            fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
+            # File will reside in the current working directory and will return filename.filetype
+            fp = str(filename)+'.'+str(filetype)
         return(fp)
     return(None)
 
@@ -142,22 +144,26 @@ def export_data(hr_data, output_dir, filetype):
     Returns the file path created if successful, None otherwise.
     """
 
+    # Get the date range for this dataset, represented as a string (this will be the file name)
+    filename = string_date_range(hr_data)
+
     # Check if the output directory and file type haven't been specified.
     # If this is the case, the application is just being imported (likely for testing),
     # so the behaviour is to not write anything to disk (a dry run)
 
     if (output_dir is None and filetype is None):
         # Get the file name without an extension, and return that instead
-        fn = string_date_range(hr_data)
-        return(fn)
+        return(filename)
     else:
-        # Get the full file name to write to
-        file_path = export_filepath(hr_data, output_dir, filetype)
+        # Get the full file path to write to
+        file_path = export_filepath(filename, output_dir, filetype)
 
         if file_path:
             if (filetype == "csv"):
+                # Returns the full file path of the CSV created
                 return(write_csv(hr_data, file_path))
             elif (filetype == "json"):
+                # Returns the full file path of the JSON created
                 return(write_json(hr_data, file_path))
         
         print("No data was written to disk due to an error -- please check the output above.")

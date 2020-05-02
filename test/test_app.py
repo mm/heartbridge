@@ -4,7 +4,7 @@ from heartbridge import app
 
 class TestHealthSampleWorkflow(unittest.TestCase):
 
-    def test_json_processing(self):
+    def test_process_health_data(self):
         testing_data = {
             "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
             "hrValues": ["74", "83", "89", "157", "95", "80"]

@@ -1,4 +1,4 @@
-import unittest, datetime, os, sys
+import unittest, datetime, os, sys, pathlib, csv, json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from heartbridge import heart
 
@@ -45,6 +45,11 @@ class TestFileMethods(unittest.TestCase):
         self.one_date_set = [(datetime.datetime(2019, 12, 2), 40), (datetime.datetime(2019, 12, 2), 45), (datetime.datetime(2019, 12, 2), 94)]
         self.one_sample = [(datetime.datetime(2019, 12, 2), 40)]
         self.multiple_date_set = [(datetime.datetime(2019, 12, 2), 40), (datetime.datetime(2019, 12, 3), 45), (datetime.datetime(2020, 12, 9), 94)]
+        self.normal_input = {
+            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrValues": ["74", "83", "89", "157", "95", "80"]
+        }
+        self.parsed_input = heart.parse_heart_json(self.normal_input)
 
     def test_recognizing_single_date(self):
         self.assertEqual(heart.string_date_range(self.one_date_set), "Dec02-2019")
@@ -52,6 +57,62 @@ class TestFileMethods(unittest.TestCase):
     
     def test_recognizing_date_range(self):
         self.assertEqual(heart.string_date_range(self.multiple_date_set), "Dec02-2019-Dec09-2020")
+
+    def test_export_filepath(self):
+        self.assertIsNone(heart.export_filepath('Dec16-2019', None, None), msg = "Passing proper data with no format specified should return None")
+        self.assertEqual(heart.export_filepath('Dec16-2019', None, 'csv'), 'Dec16-2019.csv', msg = "Passing no output directory should return a filename and extension only")
+        self.assertEqual(str(heart.export_filepath('Dec16-2019', str(os.getcwd()), 'csv')), str(os.getcwd())+'/Dec16-2019.csv', msg = 'Specifying a directory, filename and extension should yield a full file path')
+
+class TestFileWriters(unittest.TestCase):
+
+    def setUp(self):
+        # Create a sample input with a few data points (typical, "good" input):
+        self.normal_input = {
+            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrValues": ["74", "83", "89", "157", "95", "80"]
+        }
+        # Also parse that input into a list of tuples:
+        self.parsed_input = heart.parse_heart_json(self.normal_input)
+
+    def test_csv_writing(self):
+        # Write a CSV to the cwd:
+        path_of_csv_test = heart.write_csv(self.parsed_input, 'unittest_csv.csv')
+        # First, make sure the function returns a CSV file path:
+        self.assertEqual(path_of_csv_test, str(os.getcwd())+'/unittest_csv.csv')
+        
+        # Next check the CSV file itself:
+        # Does the generated CSV file contain the same data in the same order as the input data?
+        all_rows = []
+        with open('unittest_csv.csv', newline='') as test_file:
+            reader = csv.DictReader(test_file)
+            for row in reader:
+                all_rows.append((datetime.datetime.strptime(row['Timestamp'], '%Y-%m-%d %H:%M:%S'), float(row['HeartRate'])))
+        self.assertEqual(all_rows, self.parsed_input)
+
+    def test_json_writing(self):
+        # Write a JSON file to the cwd:
+        path_of_json_test = heart.write_json(self.parsed_input, 'unittest_json.json')
+        # First, make sure the function returns a CSV file path:
+        self.assertEqual(path_of_json_test, str(os.getcwd())+'/unittest_json.json')
+
+        # Check the JSON file itself:
+        # Does the generated JSON file contain the same data in the same order as the input data?
+        with open('unittest_json.json') as json_derulo:
+            loaded = json.load(json_derulo)
+            all_rows = [(datetime.datetime.strptime(x['timestamp'], '%d-%m-%Y %H:%M:%S'), x['heartRate']) for x in loaded]
+            self.assertEqual(all_rows, self.parsed_input)
+
+    def delete_test_file(self, filename):
+        try:
+            os.remove(filename)
+        except OSError:
+            pass
+
+    def tearDown(self):
+        # Delete any test files that were created and verified during the unit tests
+        self.delete_test_file('unittest_csv.csv')
+        self.delete_test_file('unittest_json.json')
+
 
 if __name__ == '__main__':
     unittest.main()
