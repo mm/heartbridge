@@ -1,3 +1,8 @@
+"""
+All helper functions for processing received data,
+validating data and writing to disk.
+"""
+
 import json, csv, os, pathlib
 from datetime import datetime
 

@@ -20,6 +20,7 @@ setup(
     },
     classifiers = [
         'Development Status :: 4 - Beta',
+        'Natural Language :: English',
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.6',

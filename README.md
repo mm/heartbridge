@@ -43,17 +43,17 @@ You can also change the port heartbridge will listen for data on (by default 888
 
 3. Make note of the endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://matt-mac.local:8888```:
 
-![The line of terminal output "Waiting to receive heart rate sample data at http://matt-mac.local:8888" tells me that my endpoint URL is http://matt-mac.local:8888](img/endpoint-image.png)
+![The line of terminal output "Waiting to receive heart rate sample data at http://matt-mac.local:8888" tells me that my endpoint URL is http://matt-mac.local:8888](https://raw.githubusercontent.com/mm/heartbridge/master/img/endpoint-image.png)
 
 4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/e4257a3986354ca79c8618c4e480bd5a). It will ask you what the HTTP endpoint URL you just noted is.
 
 5. Run the shortcut! You will be prompted to select the date range you want to cover. The end date of the date range you specify is not included in the data returned. For example, to get all data for May 2nd, 2020:
 
-![To select all data for May 2nd, 2020, you would select a date range between May 2nd and 3rd](img/shortcut-iPhone.jpeg)
+![To select all data for May 2nd, 2020, you would select a date range between May 2nd and 3rd](https://raw.githubusercontent.com/mm/heartbridge/master/img/shortcut-iPhone.jpeg)
 
 The script will output information about the data it receives from the shortcut to the console:
 
-![Information about the data received by the script (number of samples and path of the file produced) is outputted to the console](img/script-output.png)
+![Information about the data received by the script (number of samples and path of the file produced) is outputted to the console](https://raw.githubusercontent.com/mm/heartbridge/master/img/script-output.png)
 
 6. The program will continue to run and listen for new data until stopped. Stop running the script (Ctrl-C) whenever you're finished exporting all the data you need. Enjoy exploring your heart rate data!
 
@@ -70,7 +70,7 @@ The script will output information about the data it receives from the shortcut 
 
 This wasn't trivial to me, so I figured I'd write a quick bit on how the Health data is pulled using Shortcuts to begin with. The shortcut uses the "Find All Health Samples where" action:
 
-![A screenshot of the "Find All Health Samples where" action](img/find_action.jpeg)
+![A screenshot of the "Find All Health Samples where" action](https://raw.githubusercontent.com/mm/heartbridge/master/img/find_action.jpeg)
 
 This returns a result set of health samples including the start date of the reading, the value and the duration the reading was taken for. What I found difficult was exporting multiple attributes of this set's data at once -- I was only able to export the date into one array (an array of dates) and the actual heart rate value into one array (an array of values). Once these are tied into a dictionary, the resulting JSON the shortcut produces looks something like this:
 
