@@ -29,7 +29,7 @@ def parse_heart_json(input_json):
     """
 
     try:
-        hr_dates = [datetime.strptime(x, '%d-%m-%Y %H:%M:%S') for x in input_json['hrDates']]
+        hr_dates = [datetime.strptime(x, '%Y-%m-%d %H:%M:%S') for x in input_json['hrDates']]
         hr_values = [float(x) for x in input_json['hrValues']]
         all_data = list(zip(hr_dates, hr_values)) 
 
@@ -68,7 +68,7 @@ def write_json(hr_data, filename):
     """
 
     # Convert our list of tuples to a list of dicts
-    hr_dicts = [{'timestamp': datetime.strftime(x[0], '%d-%m-%Y %H:%M:%S'), 'heartRate': x[1]} for x in hr_data]
+    hr_dicts = [{'timestamp': datetime.strftime(x[0], '%Y-%m-%d %H:%M:%S'), 'heartRate': x[1]} for x in hr_data]
     
     # Serialize this to a JSON formatted stream and write it to a file
     try:

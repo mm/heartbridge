@@ -6,7 +6,7 @@ class TestSampleLoading(unittest.TestCase):
 
     def setUp(self):
         self.normal_input = {
-            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrDates": ["2019-12-16 08:24:36", "2019-12-16 09:32:17", "2019-12-16 14:53:35", "2019-12-16 16:13:35", "2019-12-16 19:23:28", "2019-12-16 23:56:25"],
             "hrValues": ["74", "83", "89", "157", "95", "80"]
         }
 
@@ -15,7 +15,7 @@ class TestSampleLoading(unittest.TestCase):
 
     def test_incomplete_json(self):
         incomplete_input = {
-            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrDates": ["2019-12-16 08:24:36", "2019-12-16 14:53:35", "2019-12-16 16:13:35", "2019-12-16 19:23:28", "2019-12-16 23:56:25"],
             "hrValues": ["74", "83", "89", "157"]
         }
         self.assertFalse(heart.valid_heart_json(incomplete_input))
@@ -24,19 +24,19 @@ class TestSampleParsing(unittest.TestCase):
 
     def setUp(self):
         self.normal_input = {
-            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrDates": ["2019-12-16 08:24:36", "2019-12-16 09:32:17", "2019-12-16 14:53:35", "2019-12-16 16:13:35", "2019-12-16 19:23:28", "2019-12-16 23:56:25"],
             "hrValues": ["74", "83", "89", "157", "95", "80"]
         }
         self.parsed_input = heart.parse_heart_json(self.normal_input)
 
     def test_date_parsing(self):
-        self.assertEqual(datetime.datetime.strptime(self.normal_input['hrDates'][1], '%d-%m-%Y %H:%M:%S'), self.parsed_input[1][0])
+        self.assertEqual(datetime.datetime.strptime(self.normal_input['hrDates'][1], '%Y-%m-%d %H:%M:%S'), self.parsed_input[1][0])
 
     def test_hr_parsing(self):
         self.assertEqual(float(self.normal_input['hrValues'][3]), self.parsed_input[3][1])
 
     def test_combining(self):
-        sample_tuple = (datetime.datetime.strptime(self.normal_input['hrDates'][4], '%d-%m-%Y %H:%M:%S'), float(self.normal_input['hrValues'][4]))
+        sample_tuple = (datetime.datetime.strptime(self.normal_input['hrDates'][4], '%Y-%m-%d %H:%M:%S'), float(self.normal_input['hrValues'][4]))
         self.assertEqual(sample_tuple, self.parsed_input[4])
 
 class TestFileMethods(unittest.TestCase):
@@ -46,7 +46,7 @@ class TestFileMethods(unittest.TestCase):
         self.one_sample = [(datetime.datetime(2019, 12, 2), 40)]
         self.multiple_date_set = [(datetime.datetime(2019, 12, 2), 40), (datetime.datetime(2019, 12, 3), 45), (datetime.datetime(2020, 12, 9), 94)]
         self.normal_input = {
-            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrDates": ["2019-12-16 08:24:36", "2019-12-16 09:32:17", "2019-12-16 14:53:35", "2019-12-16 16:13:35", "2019-12-16 19:23:28", "2019-12-16 23:56:25"],
             "hrValues": ["74", "83", "89", "157", "95", "80"]
         }
         self.parsed_input = heart.parse_heart_json(self.normal_input)
@@ -68,7 +68,7 @@ class TestFileWriters(unittest.TestCase):
     def setUp(self):
         # Create a sample input with a few data points (typical, "good" input):
         self.normal_input = {
-            "hrDates": ["16-12-2019 08:24:36", "16-12-2019 09:32:17", "16-12-2019 14:53:35", "16-12-2019 16:13:35", "16-12-2019 19:23:28", "16-12-2019 23:56:25"],
+            "hrDates": ["2019-12-16 08:24:36", "2019-12-16 09:32:17", "2019-12-16 14:53:35", "2019-12-16 16:13:35", "2019-12-16 19:23:28", "2019-12-16 23:56:25"],
             "hrValues": ["74", "83", "89", "157", "95", "80"]
         }
         # Also parse that input into a list of tuples:
@@ -99,7 +99,7 @@ class TestFileWriters(unittest.TestCase):
         # Does the generated JSON file contain the same data in the same order as the input data?
         with open('unittest_json.json') as json_derulo:
             loaded = json.load(json_derulo)
-            all_rows = [(datetime.datetime.strptime(x['timestamp'], '%d-%m-%Y %H:%M:%S'), x['heartRate']) for x in loaded]
+            all_rows = [(datetime.datetime.strptime(x['timestamp'], '%Y-%m-%d %H:%M:%S'), x['heartRate']) for x in loaded]
             self.assertEqual(all_rows, self.parsed_input)
 
     def delete_test_file(self, filename):
