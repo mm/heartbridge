@@ -29,7 +29,7 @@ def parse_heart_json(input_json):
     """
 
     try:
-        hr_dates = [datetime.strptime(x, '%d-%m-%Y %H:%M:%S') for x in input_json['hrDates']]
+        hr_dates = [datetime.strptime(x, '%Y-%m-%d %H:%M:%S') for x in input_json['hrDates']]
         hr_values = [float(x) for x in input_json['hrValues']]
         all_data = list(zip(hr_dates, hr_values)) 
 
@@ -68,7 +68,7 @@ def write_json(hr_data, filename):
     """
 
     # Convert our list of tuples to a list of dicts
-    hr_dicts = [{'timestamp': datetime.strftime(x[0], '%d-%m-%Y %H:%M:%S'), 'heartRate': x[1]} for x in hr_data]
+    hr_dicts = [{'timestamp': datetime.strftime(x[0], '%Y-%m-%d %H:%M:%S'), 'heartRate': x[1]} for x in hr_data]
     
     # Serialize this to a JSON formatted stream and write it to a file
     try:
@@ -106,27 +106,40 @@ def string_date_range(hr_data):
     else:
         return("{0}-{1}".format(begin_string, end_string))
 
-def export_filepath(hr_data, output_dir, filetype):
+def export_filepath(filename, output_dir, filetype):
     """
     Constructs the file path to be exported, based on user preferences.
-    Will return None if the file path could not be constructed.
+    Will return None if the file path could not be constructed. Will check if
+    the target directory exists beforehand and create if necessary.
+
+    Arguments:
+        * filename (str): The name of the file to be exported (no extension)
+        * output_dir (str): The directory to export the file to
+        * filetype (str): Either csv or json
     """
 
-    # 1) Get the date range for this dataset
-    filename = string_date_range(hr_data)
-
-    # 2) Combine that with the directory path and file type passed in by the user
-    if filename:
+    if filename and filetype:
         if output_dir:
             # File will reside in the directory passed in by the user
             fp = pathlib.Path(output_dir)
             if fp.is_dir():
+                # If the user passed in a directory that already exists, great! Construct a full path based on it.
                 fp = fp / f'{filename}.{filetype}'
+            elif fp.is_file():
+                # If the user passed a file by accident, reject it.
+                print("Directory passed into --directory is a file! Please specify a directory.")
+                return(None)
             else:
-                print("Path passed in to --directory does not exist!")
+                # The directory must not exist yet -- create it and then construct the path.
+                try:
+                    os.mkdir(fp)
+                    fp = fp / f'{filename}.{filetype}'
+                except Exception as e:
+                    print("Exception occured while creating directory: {}".format(e))
+                    return(None)                
         else:
-            # File will reside in the current working directory of the script
-            fp = pathlib.Path.cwd() / f'{filename}.{filetype}'
+            # File will reside in the current working directory and will return filename.filetype
+            fp = str(filename)+'.'+str(filetype)
         return(fp)
     return(None)
 
@@ -142,22 +155,26 @@ def export_data(hr_data, output_dir, filetype):
     Returns the file path created if successful, None otherwise.
     """
 
+    # Get the date range for this dataset, represented as a string (this will be the file name)
+    filename = string_date_range(hr_data)
+
     # Check if the output directory and file type haven't been specified.
     # If this is the case, the application is just being imported (likely for testing),
     # so the behaviour is to not write anything to disk (a dry run)
 
     if (output_dir is None and filetype is None):
         # Get the file name without an extension, and return that instead
-        fn = string_date_range(hr_data)
-        return(fn)
+        return(filename)
     else:
-        # Get the full file name to write to
-        file_path = export_filepath(hr_data, output_dir, filetype)
+        # Get the full file path to write to
+        file_path = export_filepath(filename, output_dir, filetype)
 
         if file_path:
             if (filetype == "csv"):
+                # Returns the full file path of the CSV created
                 return(write_csv(hr_data, file_path))
             elif (filetype == "json"):
+                # Returns the full file path of the JSON created
                 return(write_json(hr_data, file_path))
         
         print("No data was written to disk due to an error -- please check the output above.")
