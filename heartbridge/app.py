@@ -2,10 +2,10 @@ import argparse, socket
 from heartbridge import heart, server
 
 # Add command-line arguments:
-parser = argparse.ArgumentParser(description = "Opens a temporary REST endpoint to send heart rate data from Shortcuts to your computer.")
+parser = argparse.ArgumentParser(description = "Opens a temporary HTTP endpoint to send heart rate data from Shortcuts to your computer.")
 parser.add_argument("--directory", help = "Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.")
 parser.add_argument("--type", help = "Set the output file type. Can be csv or json. Defaults to csv.", default = "csv")
-parser.add_argument("--port", help = "Set the port to listen for requests on. Defaults to 8888.", default = 8888)
+parser.add_argument("--port", help = "Set the port to listen for HTTP requests on. Defaults to 8888.", default = 8888)
 
 def process_health_data(heartrate_dict, output_dir = None, output_format = None):
     """
