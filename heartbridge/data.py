@@ -6,9 +6,13 @@ from dataclasses import dataclass
 from datetime import datetime
 
 
-@dataclass
-class HeartRateReading:
+@dataclass(order=True)
+class BaseHealthReading:
     timestamp: datetime
+
+
+@dataclass(order=True)
+class HeartRateReading(BaseHealthReading):
     heart_rate: float
 
     def to_dict(self):
@@ -17,10 +21,8 @@ class HeartRateReading:
             'heartRate': round(self.heart_rate, 1)
         }
 
-
-@dataclass
-class StepsReading:
-    timestamp: datetime
+@dataclass(order=True)
+class StepsReading(BaseHealthReading):
     step_count: int
 
     def to_dict(self):
@@ -30,9 +32,8 @@ class StepsReading:
         }
 
 
-@dataclass
-class FlightsClimbedReading:
-    timestamp: datetime
+@dataclass(order=True)
+class FlightsClimbedReading(BaseHealthReading):
     climbed: int
 
     def to_dict(self):

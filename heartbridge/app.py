@@ -4,7 +4,7 @@ the HTTP server and processes JSON data from Shortcuts when
 ```main()``` is run.
 """
 
-import argparse, socket
+import argparse
 from heartbridge import heart, server
 
 # Add command-line arguments:
