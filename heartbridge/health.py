@@ -14,7 +14,13 @@ READING_MAPPING = {
 }
 
 SHORTCUTS_INPUT_FIELDS = {
-    'heartrate': ('hrDates', 'hrValues')
+    'heartrate': ('dates', 'values')
+}
+
+VALUE_MAPPING = {
+    'heartrate': 'heart_rate',
+    'steps': 'step_count',
+    'flights': 'climbed'
 }
 
 DATE_PARSE_STRING = '%Y-%m-%d %H:%M:%S'
@@ -45,16 +51,25 @@ class Health:
         return True
 
 
-    def parse_shortcuts_data(self, data:dict, reading_type: str) -> Generator[HeartRateReading]:
+    def parse_shortcuts_data(self, data:dict, reading_type: str) -> Generator[BaseHealthReading, None, None]:
+        """Parses input data from Shortcuts, and yields health reading instances
+        based on the type of input data.
+
+        Args:
+            data: Input data from shortcuts (as a dictionary)
+            reading_type: The type of readings being parsed (e.g heartrate)
+        """
+        
         reading_cls = READING_MAPPING.get(reading_type)
         if not reading_cls:
             raise NotImplementedError
         
-        dates = [datetime.strptime(x, DATE_PARSE_STRING) for x in data['hrDates']]
-        values = [float(x) for x in data['hrValues']]
+        value_mapping_key = VALUE_MAPPING[reading_type]
+        dates = [datetime.strptime(x, DATE_PARSE_STRING) for x in data['dates']]
+        values = [float(x) for x in data['values']]
 
         for date, value in zip(dates, values):
-            yield HeartRateReading(timestamp=date, heart_rate=value)
+            yield reading_cls(**{'timestamp': date, value_mapping_key: value})
         
 
     def _validate_input_field_length(self, data:dict, reading_type: str) -> bool:

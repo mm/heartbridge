@@ -39,5 +39,5 @@ class FlightsClimbedReading(BaseHealthReading):
     def to_dict(self):
         return {
             'timestamp': datetime.strftime(self.timestamp, '%Y-%m-%d %H:%M:%S'),
-            'steps': self.climbed
+            'climbed': self.climbed
         }
