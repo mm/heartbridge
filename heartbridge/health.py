@@ -27,6 +27,7 @@ SHORTCUTS_INPUT_FIELDS = {
 
 VALUE_MAPPING = {
     'heart-rate': 'heart_rate',
+    'heart-rate-legacy': 'heart_rate',
     'steps': 'step_count',
     'flights-climbed': 'climbed'
 }
@@ -150,8 +151,12 @@ class Health:
             raise NotImplementedError
         
         value_mapping_key = VALUE_MAPPING[reading_type]
-        dates = [datetime.strptime(x, DATE_PARSE_STRING) for x in data['dates']]
-        values = [float(x) for x in data['values']]
+        date_key, value_key = ('dates', 'values')
+        if reading_type == 'heart-rate-legacy':
+            date_key, value_key = ('hrDates', 'hrValues')
+
+        dates = [datetime.strptime(x, DATE_PARSE_STRING) for x in data[date_key]]
+        values = [float(x) for x in data[value_key]]
         readings = []
 
         for date, value in zip(dates, values):
