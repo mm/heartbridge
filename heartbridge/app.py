@@ -5,7 +5,9 @@ the HTTP server and processes JSON data from Shortcuts when
 """
 
 import argparse
-from heartbridge import heart, server
+from heartbridge import heart, server, export
+from heartbridge.health import Health
+
 
 # Add command-line arguments:
 parser = argparse.ArgumentParser(description = "Opens a temporary HTTP endpoint to send heart rate data from Shortcuts to your computer.")
@@ -24,19 +26,18 @@ def process_health_data(heartrate_dict, output_dir = None, output_format = None)
         * output_format (str): Either csv or json -- the file format the export will be in
     """
 
-    if heart.valid_heart_json(heartrate_dict):
-        # If the passed in dictionary contains the appropriate keys and passes other checks, process it.
-        parsed_data = heart.parse_heart_json(heartrate_dict)
+    health = Health(output_dir, output_format)
+    # 1) Validate and parse data from Shortcuts:
+    reading_type = health.extract_record_type(heartrate_dict)
+    health.load_from_shortcuts(heartrate_dict, reading_type)
+    print(f"Received heart rate data with {len(health.readings)} samples.")
+    # 2) If there was data loaded in, create an export and print statistics:
+    export_filename = health.export_to_file()
 
-        if parsed_data:
-            # If there was data to parse, export it to a CSV or JSON file.
-            print(f"Received heart rate data with {len(parsed_data)} samples.")
-            export_filename = heart.export_data(parsed_data, output_dir, output_format)
-
-            if export_filename:
-                # Print the filename to console, in green and return True to indicate success
-                print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
-                return True
+    if export_filename:
+        # Print the filename to console, in green and return True to indicate success
+        print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
+        return True
     
     return False
 

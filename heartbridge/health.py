@@ -3,38 +3,47 @@ and coordinating exports of that data.
 """
 
 from .data import BaseHealthReading, HeartRateReading, StepsReading, FlightsClimbedReading
+from .export import CSVExporter, JSONExporter, export_filepath
 from typing import List
 from datetime import datetime
 import warnings
 
+EXPORT_CLS_MAP = {
+    'csv': CSVExporter,
+    'json': JSONExporter
+}
 
 READING_MAPPING = {
-    'heartrate': HeartRateReading,
-    'heartrate_legacy': HeartRateReading,
+    'heart-rate': HeartRateReading,
+    'heart-rate-legacy': HeartRateReading,
     'steps': StepsReading,
-    'flights': FlightsClimbedReading
+    'flights-climbed': FlightsClimbedReading
 }
 
 SHORTCUTS_INPUT_FIELDS = {
-    'heartrate': ('dates', 'values'),
-    'heartrate_legacy': ('hrDates', 'hrValues')
+    'heart-rate': ('dates', 'values'),
+    'heart-rate-legacy': ('hrDates', 'hrValues')
 }
 
 VALUE_MAPPING = {
-    'heartrate': 'heart_rate',
+    'heart-rate': 'heart_rate',
     'steps': 'step_count',
-    'flights': 'climbed'
+    'flights-climbed': 'climbed'
 }
 
 DATE_PARSE_STRING = '%Y-%m-%d %H:%M:%S'
 
 
 class Health:
+    """Coordinates parsing health data from Shortcuts, and stores a collection
+    of parsed data to be exported.
+    """
 
     def __init__(self, output_dir: str = None, output_format: str = None):
         self.output_dir = output_dir
         self.output_format = output_format
         self.readings = None
+        self.reading_type = None
 
 
     def load_from_shortcuts(self, data: dict, reading_type: str) -> None:
@@ -48,8 +57,24 @@ class Health:
         
         if self._validate_input_fields(data, reading_type):
             self.readings = self._parse_shortcuts_data(data=data, reading_type=reading_type)
+            self.reading_type = reading_type.lower()
         else:
             raise ValueError
+
+
+    def export_to_file(self) -> str:
+        """Depending on the `output_format`, calls the correct export functions
+        and returns a path to the file created.
+        """
+
+        # Generate filename based on record type and date range:
+        filename = '{}-{}'.format(self.reading_type, self.string_date_range())
+        filepath = export_filepath(filename, self.output_dir, self.output_format)
+        # Use the correct export class to export data, based on output format:
+        exporter = EXPORT_CLS_MAP[self.output_format]
+        # Return the full path of the file exported:
+        export_filename = exporter().readings_to_file(self.readings, filepath)
+        return export_filename
 
 
     def string_date_range(self) -> str:
@@ -91,6 +116,24 @@ class Health:
             warnings.warn("This version of the Heartbridge shortcut will be deprecated soon, please install the new one on GitHub: https://github.com/mm/heartbridge", FutureWarning)
             return True
         return False
+
+
+    def extract_record_type(self, data: dict) -> str:
+        """Extracts and reformats the record type of data from Shortcuts, by
+        reading whatever's stored in `data[type].`
+
+        Example:
+            If the data from Shortcuts includes `type`: "Heart Rate", this function
+            will return "heart-rate".
+        """
+        reading_type = data.get('type')
+        if not reading_type:
+            if self.check_legacy(data):
+                return 'heart-rate-legacy'
+            else:
+                raise ValueError("Shortcuts input data must include a type key indicating the type of health record")
+        else:
+            return reading_type.lower().replace(" ", "-")
 
 
     def _parse_shortcuts_data(self, data:dict, reading_type: str) -> List[BaseHealthReading]:
