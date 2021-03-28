@@ -5,6 +5,7 @@ and coordinating exports of that data.
 from .data import BaseHealthReading, HeartRateReading, StepsReading, FlightsClimbedReading
 from typing import List
 from datetime import datetime
+import warnings
 
 
 READING_MAPPING = {
@@ -87,9 +88,9 @@ class Health:
         (the shortcut for that version sends different keys in the heart rate data)
         """
         if ('hrDates' in data) and ('hrValues' in data):
-            # TODO: Add a warning here
+            warnings.warn("This version of the Heartbridge shortcut will be deprecated soon, please install the new one on GitHub: https://github.com/mm/heartbridge", FutureWarning)
             return True
-        return False 
+        return False
 
 
     def _parse_shortcuts_data(self, data:dict, reading_type: str) -> List[BaseHealthReading]:
