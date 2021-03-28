@@ -9,12 +9,14 @@ from datetime import datetime
 
 READING_MAPPING = {
     'heartrate': HeartRateReading,
+    'heartrate_legacy': HeartRateReading,
     'steps': StepsReading,
     'flights': FlightsClimbedReading
 }
 
 SHORTCUTS_INPUT_FIELDS = {
-    'heartrate': ('dates', 'values')
+    'heartrate': ('dates', 'values'),
+    'heartrate_legacy': ('hrDates', 'hrValues')
 }
 
 VALUE_MAPPING = {
@@ -47,6 +49,47 @@ class Health:
             self.readings = self._parse_shortcuts_data(data=data, reading_type=reading_type)
         else:
             raise ValueError
+
+
+    def string_date_range(self) -> str:
+        """
+        Using the list of HealthReadings in `readings`, determines the date range of data
+        present. Two outputs are possible:
+
+        1) Data for only one day: Will return the one day in month-day-year format: i.e. Dec16-2019
+        2) Data spanning multiple days: Will return the range in month-day-year-month-day-year format: i.e. Dec16-2019-Dec20-2019
+        """
+
+        if not self.readings:
+            raise ValueError
+        
+        try:
+            begin_date = self.readings[0].timestamp # gets first element of the tuple (datetime) from first item in list
+            end_date = self.readings[-1].timestamp
+        except IndexError:
+            print("An empty list was passed -- please check input data")
+            return None
+        except Exception as e:
+            print("Failed to determine the date range for the data passed in: {}".format(e))
+            return None
+
+        begin_string = begin_date.strftime("%b%d-%Y")
+        end_string = end_date.strftime("%b%d-%Y")
+
+        if begin_string == end_string:
+            return begin_string
+        else:
+            return "{0}-{1}".format(begin_string, end_string)
+
+    
+    def check_legacy(self, data:dict) -> bool:
+        """Checks whether the data is coming from the original version of Heartbridge
+        (the shortcut for that version sends different keys in the heart rate data)
+        """
+        if ('hrDates' in data) and ('hrValues' in data):
+            # TODO: Add a warning here
+            return True
+        return False 
 
 
     def _parse_shortcuts_data(self, data:dict, reading_type: str) -> List[BaseHealthReading]:
