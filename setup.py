@@ -28,5 +28,6 @@ setup(
         'Programming Language :: Python :: 3.8'
     ],
     keywords='heartrate apple watch shortcuts',
-    python_requires='>=3.6'
+    python_requires='>=3.8',
+    install_requires=['uvicorn', 'starlette']
 )

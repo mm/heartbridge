@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8a242eebca24493ef24bf89c0fc85c275bf5ef47a6f271c776ff9b540256a4bf"
+            "sha256": "8ed3b028d254027ba0666015cf348fbc9e9835eafeff6dadfae439e4c3b85bff"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -46,6 +46,10 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==0.12.0"
+        },
+        "heartbridge": {
+            "editable": true,
+            "path": "."
         },
         "idna": {
             "hashes": [

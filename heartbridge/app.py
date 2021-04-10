@@ -5,7 +5,11 @@ the HTTP server and processes JSON data from Shortcuts when
 """
 
 import argparse
-from heartbridge import heart, server, export
+import socket
+import uvicorn
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 from heartbridge.health import Health
 
 
@@ -14,6 +18,17 @@ parser = argparse.ArgumentParser(description = "Opens a temporary HTTP endpoint 
 parser.add_argument("--directory", help = "Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.")
 parser.add_argument("--type", help = "Set the output file type. Can be csv or json. Defaults to csv.", default = "csv")
 parser.add_argument("--port", help = "Set the port to listen for HTTP requests on. Defaults to 8888.", default = 8888)
+
+def capture_health_data(request):
+    health_data = request.json()
+    process_health_data(health_data, app.state.OUTPUT_DIRECTORY, app.state.OUTPUT_FORMAT)
+    return JSONResponse({'message': 'Data processed'})
+
+routes = [
+    Route("/", endpoint=capture_health_data, methods=['POST'])
+]
+
+app = Starlette(debug=False, routes=routes)
 
 def process_health_data(heartrate_dict, output_dir = None, output_format = None):
     """
@@ -71,21 +86,11 @@ def main():
     args = parser.parse_args()
     # If a user passes in CSV/JSON, correct it to csv/json
     args.type = args.type.lower()
+    hostname = socket.gethostname()
 
     if check_args(args):
-        try:
-            # This loop will create an HTTPServer instance to listen for incoming POST data from iOS Shortcuts.
-            # Once data is received and deserialized, it is returned and the instance is deleted.
-            # The instance is created again to listen for more data until the a keyboard interrupt is received.
-            while True:
-                # Listen on the port specified for a POST request containing the heart rate data payload
-                output_data = server.run(port=int(args.port))
-                # Process the data, exporting it to the directory/file type of choosing
-                success = process_health_data(output_data, output_dir = args.directory, output_format = args.type)
-                if not success:
-                    # process_health_data returns a boolean letting us know if it worked or not:
-                    print("Health data processing failed.")
-        except KeyboardInterrupt:
-            print("\nKeyboard interrupt received, stopping.")
-    else:
-        exit(1)
+        app.state.OUTPUT_DIRECTORY = args.directory
+        app.state.OUTPUT_FORMAT = args.type
+        print("\U000026A1 Waiting to receive health data at http://{}:{}...".format(hostname, args.port))
+        print("Press Ctrl+C to stop listening for new data.")
+        uvicorn.run(app, log_level='error', access_log=False, port=int(args.port))
