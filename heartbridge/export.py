@@ -71,10 +71,6 @@ def export_filepath(filename, output_dir, filetype):
             if fp.is_dir():
                 # If the user passed in a directory that already exists, great! Construct a full path based on it.
                 fp = fp / f'{filename}.{filetype}'
-            elif fp.is_file():
-                # If the user passed a file by accident, reject it.
-                print("Directory passed into --directory is a file! Please specify a directory.")
-                return None
             else:
                 # The directory must not exist yet -- create it and then construct the path.
                 try:

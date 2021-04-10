@@ -3,6 +3,7 @@ and coordinating exports of that data.
 """
 
 from .data import BaseHealthReading, GenericHealthReading
+from .exceptions import ValidationError, LoadingError
 from .export import export_filepath
 from .constants import (
     EXPORT_CLS_MAP,
@@ -43,7 +44,7 @@ class Health:
             self.reading_type_slug = reading_type
             self.readings = self._parse_shortcuts_data(data=data)
         else:
-            raise ValueError
+            raise ValidationError("Could not validate input data from Shortcuts")
 
 
     def export(self) -> str:
@@ -106,7 +107,7 @@ class Health:
             if self.check_legacy(data):
                 return 'heart-rate-legacy'
             else:
-                raise ValueError("Shortcuts input data must include a type key indicating the type of health record")
+                raise LoadingError("Shortcuts input data must include a type key indicating the type of health record")
         else:
             return reading_type.lower().replace(" ", "-")
 
@@ -119,9 +120,9 @@ class Health:
         if reading_type == LEGACY_RECORD_TYPE:
             fields = ['hrDates', 'hrValues']
         if not set(fields).issubset(data.keys()):
-            raise ValueError
+            raise ValidationError(f"Data does not have all the required fields for this record type: {fields}")
         if not self._validate_input_field_length(data=data, reading_type=reading_type):
-            raise ValueError
+            raise ValidationError(f"The lengths of both fields in {fields} must be equal.")
 
         return True
 
@@ -146,17 +147,13 @@ class Health:
         """
 
         if not self.readings:
-            raise ValueError
+            raise LoadingError("Cannot determine the date range of an empty set of data")
         
         try:
             begin_date = self.readings[0].timestamp # gets first element of the tuple (datetime) from first item in list
             end_date = self.readings[-1].timestamp
-        except IndexError:
-            print("An empty list was passed -- please check input data")
-            return None
         except Exception as e:
-            print("Failed to determine the date range for the data passed in: {}".format(e))
-            return None
+            raise LoadingError("Failed to determine the date range for the data passed in: {}".format(e))
 
         begin_string = begin_date.strftime("%b%d-%Y")
         end_string = end_date.strftime("%b%d-%Y")
