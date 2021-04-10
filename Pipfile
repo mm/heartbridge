@@ -8,6 +8,7 @@ uvicorn = "*"
 requests = "*"
 starlette = "*"
 heartbridge = {editable = true, path = "."}
+click = "*"
 
 [requires]
 python_version = "3.8"

@@ -15,7 +15,7 @@ setup(
     packages=['heartbridge'],
     entry_points={
         'console_scripts': [
-            'heartbridge=heartbridge.app:main',
+            'heartbridge=heartbridge.app:cli',
         ],
     },
     classifiers = [
