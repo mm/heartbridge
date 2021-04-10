@@ -20,18 +20,8 @@ READING_MAPPING = {
     'flights-climbed': FlightsClimbedReading
 }
 
-SHORTCUTS_INPUT_FIELDS = {
-    'heart-rate': ('dates', 'values'),
-    'heart-rate-legacy': ('hrDates', 'hrValues')
-}
-
-VALUE_MAPPING = {
-    'heart-rate': 'heart_rate',
-    'heart-rate-legacy': 'heart_rate',
-    'steps': 'step_count',
-    'flights-climbed': 'climbed'
-}
-
+REQUIRED_FIELDS = ['dates', 'values']
+LEGACY_RECORD_TYPE = 'heart-rate-legacy'
 DATE_PARSE_STRING = '%Y-%m-%d %H:%M:%S'
 
 
@@ -44,10 +34,10 @@ class Health:
         self.output_dir = output_dir
         self.output_format = output_format
         self.readings = None
-        self.reading_type = None
+        self.reading_type_slug = None
 
 
-    def load_from_shortcuts(self, data: dict, reading_type: str) -> None:
+    def load_from_shortcuts(self, data: dict) -> None:
         """Validates and loads data from the iOS Shortcuts app into a list of HealthReading
         instances.
 
@@ -55,10 +45,13 @@ class Health:
             data: The dictionary containing readings after data deserialization
             reading_type: The type of readings being imported
         """
+
+        # Infer reading type from input dictionary:
+        reading_type = self._extract_record_type(data)
         
         if self._validate_input_fields(data, reading_type):
-            self.readings = self._parse_shortcuts_data(data=data, reading_type=reading_type)
-            self.reading_type = reading_type.lower()
+            self.reading_type_slug = reading_type
+            self.readings = self._parse_shortcuts_data(data=data)
         else:
             raise ValueError
 
@@ -69,7 +62,7 @@ class Health:
         """
 
         # Generate filename based on record type and date range:
-        filename = '{}-{}'.format(self.reading_type, self.string_date_range())
+        filename = '{}-{}'.format(self.reading_type_slug, self.string_date_range())
         filepath = export_filepath(filename, self.output_dir, self.output_format)
         # Use the correct export class to export data, based on output format:
         exporter = EXPORT_CLS_MAP[self.output_format]
@@ -119,7 +112,7 @@ class Health:
         return False
 
 
-    def extract_record_type(self, data: dict) -> str:
+    def _extract_record_type(self, data: dict) -> str:
         """Extracts and reformats the record type of data from Shortcuts, by
         reading whatever's stored in `data[type].`
 
@@ -137,30 +130,26 @@ class Health:
             return reading_type.lower().replace(" ", "-")
 
 
-    def _parse_shortcuts_data(self, data:dict, reading_type: str) -> List[BaseHealthReading]:
+    def _parse_shortcuts_data(self, data:dict) -> List[BaseHealthReading]:
         """Parses input data from Shortcuts, and returns a list of health reading instances
         based on the type of input data. The list is ordered by timestamp (ascending).
 
         Args:
             data: Input data from shortcuts (as a dictionary)
-            reading_type: The type of readings being parsed (e.g heartrate)
         """
         
-        reading_cls = READING_MAPPING.get(reading_type)
-        if not reading_cls:
-            raise NotImplementedError
+        reading_cls = READING_MAPPING.get(self.reading_type_slug, BaseHealthReading)
         
-        value_mapping_key = VALUE_MAPPING[reading_type]
         date_key, value_key = ('dates', 'values')
-        if reading_type == 'heart-rate-legacy':
+        if self.reading_type_slug == 'heart-rate-legacy':
             date_key, value_key = ('hrDates', 'hrValues')
 
-        dates = [datetime.strptime(x, DATE_PARSE_STRING) for x in data[date_key]]
-        values = [float(x) for x in data[value_key]]
+        dates = (datetime.strptime(x, DATE_PARSE_STRING) for x in data[date_key])
+        values = (float(x) for x in data[value_key])
         readings = []
 
         for date, value in zip(dates, values):
-            readings.append(reading_cls(**{'timestamp': date, value_mapping_key: value}))
+            readings.append(reading_cls(**{'timestamp': date, 'value': value}))
         
         return readings
 
@@ -170,11 +159,9 @@ class Health:
             * Input data contains the correct keys for the given reading type
             * Input data shape is correct
         """
-
-        fields = SHORTCUTS_INPUT_FIELDS.get(reading_type)
-        if not fields:
-            # TODO: We'll probably raise a custom error here
-            raise NotImplementedError
+        fields = REQUIRED_FIELDS
+        if reading_type == LEGACY_RECORD_TYPE:
+            fields = ['hrDates', 'hrValues']
         if not set(fields).issubset(data.keys()):
             raise ValueError
         if not self._validate_input_field_length(data=data, reading_type=reading_type):
@@ -187,6 +174,8 @@ class Health:
         """All data fields returned from Shortcuts should have the same shape (i.e.
         number of heart rate readings should match the number of dates)
         """
-        fields = SHORTCUTS_INPUT_FIELDS.get(reading_type)
+        fields = REQUIRED_FIELDS
+        if reading_type == LEGACY_RECORD_TYPE:
+            fields = ['hrDates', 'hrValues']
         content_lengths = [len(data[field]) for field in fields]
         return all(x == content_lengths[0] for x in content_lengths)

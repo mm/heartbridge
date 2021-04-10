@@ -9,7 +9,5 @@ requests = "*"
 starlette = "*"
 heartbridge = {editable = true, path = "."}
 
-[dev-packages]
-
 [requires]
 python_version = "3.8"

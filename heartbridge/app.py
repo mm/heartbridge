@@ -19,8 +19,8 @@ parser.add_argument("--directory", help = "Set the output directory for exported
 parser.add_argument("--type", help = "Set the output file type. Can be csv or json. Defaults to csv.", default = "csv")
 parser.add_argument("--port", help = "Set the port to listen for HTTP requests on. Defaults to 8888.", default = 8888)
 
-def capture_health_data(request):
-    health_data = request.json()
+async def capture_health_data(request):
+    health_data = await request.json()
     process_health_data(health_data, app.state.OUTPUT_DIRECTORY, app.state.OUTPUT_FORMAT)
     return JSONResponse({'message': 'Data processed'})
 
@@ -42,10 +42,10 @@ def process_health_data(heartrate_dict, output_dir = None, output_format = None)
     """
 
     health = Health(output_dir, output_format)
+
     # 1) Validate and parse data from Shortcuts:
-    reading_type = health.extract_record_type(heartrate_dict)
-    health.load_from_shortcuts(heartrate_dict, reading_type)
-    print(f"Received heart rate data with {len(health.readings)} samples.")
+    health.load_from_shortcuts(heartrate_dict)
+    print(f"Loaded health data with {len(health.readings)} samples.")
     # 2) If there was data loaded in, create an export and print statistics:
     export_filename = health.export_to_file()
 
@@ -93,4 +93,4 @@ def main():
         app.state.OUTPUT_FORMAT = args.type
         print("\U000026A1 Waiting to receive health data at http://{}:{}...".format(hostname, args.port))
         print("Press Ctrl+C to stop listening for new data.")
-        uvicorn.run(app, log_level='error', access_log=False, port=int(args.port))
+        uvicorn.run(app, host='0.0.0.0', log_level='error', access_log=False, port=int(args.port))
