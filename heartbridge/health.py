@@ -2,28 +2,18 @@
 and coordinating exports of that data.
 """
 
-from .data import BaseHealthReading, HeartRateReading, StepsReading, FlightsClimbedReading
-from .export import CSVExporter, JSONExporter, export_filepath
+from .data import BaseHealthReading, GenericHealthReading
+from .export import export_filepath
+from .constants import (
+    EXPORT_CLS_MAP,
+    READING_MAPPING,
+    REQUIRED_FIELDS,
+    LEGACY_RECORD_TYPE,
+    DATE_PARSE_STRING
+)
 from typing import List
 from datetime import datetime
 import warnings
-
-EXPORT_CLS_MAP = {
-    'csv': CSVExporter,
-    'json': JSONExporter
-}
-
-READING_MAPPING = {
-    'heart-rate': HeartRateReading,
-    'heart-rate-legacy': HeartRateReading,
-    'steps': StepsReading,
-    'flights-climbed': FlightsClimbedReading
-}
-
-REQUIRED_FIELDS = ['dates', 'values']
-LEGACY_RECORD_TYPE = 'heart-rate-legacy'
-DATE_PARSE_STRING = '%Y-%m-%d %H:%M:%S'
-
 
 class Health:
     """Coordinates parsing health data from Shortcuts, and stores a collection
@@ -138,7 +128,7 @@ class Health:
             data: Input data from shortcuts (as a dictionary)
         """
         
-        reading_cls = READING_MAPPING.get(self.reading_type_slug, BaseHealthReading)
+        reading_cls = READING_MAPPING.get(self.reading_type_slug, GenericHealthReading)
         
         date_key, value_key = ('dates', 'values')
         if self.reading_type_slug == 'heart-rate-legacy':

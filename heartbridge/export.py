@@ -28,6 +28,7 @@ class CSVExporter(ExporterBase):
             all_readings = [reading.to_dict() for reading in data]
             with open(filename, 'w', newline = '') as export_file:
                 writer = csv.DictWriter(export_file, fieldnames=data[0].field_names)
+                writer.writeheader()
                 writer.writerows(all_readings)
                 return(os.path.realpath(export_file.name))
         except Exception as e:
