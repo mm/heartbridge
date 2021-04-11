@@ -4,11 +4,9 @@ the HTTP server and processes JSON data from Shortcuts when
 ```cli()``` is run.
 """
 
-import socket
+import socket, logging, json
 import uvicorn
 import click
-import json
-import logging
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
@@ -63,6 +61,5 @@ def cli(directory: str, type:str, port:int):
     # Set app state variables, which get used during export:
     app.state.OUTPUT_DIRECTORY = directory
     app.state.OUTPUT_FORMAT = type
-    print("\U000026A1 Waiting to receive health data at http://{}:{}...".format(hostname, port))
-    print("Press Ctrl+C to stop listening for new data.")
+    print("\U000026A1 Waiting to receive health data at http://{}:{}... (Press Ctrl+C to stop)".format(hostname, port))
     uvicorn.run(app, host='0.0.0.0', log_level='error', access_log=False, port=port)

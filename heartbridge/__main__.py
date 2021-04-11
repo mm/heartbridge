@@ -4,4 +4,4 @@
 
 from heartbridge import app
 
-app.main()
+app.cli()

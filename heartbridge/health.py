@@ -34,7 +34,6 @@ class Health:
 
         Args:
             data: The dictionary containing readings after data deserialization
-            reading_type: The type of readings being imported
         """
 
         # Infer reading type from input dictionary:
@@ -77,6 +76,7 @@ class Health:
 
         dates = (datetime.strptime(x, DATE_PARSE_STRING) for x in data[date_key])
         values = (float(x) for x in data[value_key])
+
         readings = []
 
         for date, value in zip(dates, values):
@@ -104,7 +104,7 @@ class Health:
         """
         reading_type = data.get('type')
         if not reading_type:
-            if self.check_legacy(data):
+            if self._check_legacy(data):
                 return 'heart-rate-legacy'
             else:
                 raise LoadingError("Shortcuts input data must include a type key indicating the type of health record")

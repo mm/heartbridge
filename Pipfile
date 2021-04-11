@@ -12,3 +12,7 @@ click = "*"
 
 [requires]
 python_version = "3.8"
+
+[dev-packages]
+pytest = "*"
+factory-boy = "*"

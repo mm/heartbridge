@@ -2,10 +2,12 @@
 (e.g JSON or CSV)
 """
 
-import json, csv, os, pathlib
+import json, csv, os
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Union
 from .data import BaseHealthReading
+from .exceptions import ExportError
+from pathlib import Path
 
 class ExporterBase(ABC):
     """Abstract base class for all health reading exporters.
@@ -32,10 +34,7 @@ class CSVExporter(ExporterBase):
                 writer.writerows(all_readings)
                 return(os.path.realpath(export_file.name))
         except Exception as e:
-            print("An error occured while writing the CSV file: {}".format(e))
-            return(None)
-            
-
+            raise ExportError("An error occured while writing the CSV file: {}".format(e))
 
 class JSONExporter(ExporterBase):
 
@@ -48,11 +47,10 @@ class JSONExporter(ExporterBase):
                 json.dump(all_readings, export_file)
                 return(os.path.realpath(export_file.name))
         except Exception as e:
-            print("An error occured while writing the JSON file: {}".format(e))
-            return(None)
+            raise ExportError("An error occured while writing the JSON file: {}".format(e))
         
 
-def export_filepath(filename, output_dir, filetype):
+def export_filepath(filename: str, output_dir: str, filetype: str) -> Union[Path, None]:
     """
     Constructs the file path to be exported, based on user preferences.
     Will return None if the file path could not be constructed. Will check if
@@ -67,7 +65,7 @@ def export_filepath(filename, output_dir, filetype):
     if filename and filetype:
         if output_dir:
             # File will reside in the directory passed in by the user
-            fp = pathlib.Path(output_dir)
+            fp = Path(output_dir)
             if fp.is_dir():
                 # If the user passed in a directory that already exists, great! Construct a full path based on it.
                 fp = fp / f'{filename}.{filetype}'
@@ -77,10 +75,9 @@ def export_filepath(filename, output_dir, filetype):
                     os.mkdir(fp)
                     fp = fp / f'{filename}.{filetype}'
                 except Exception as e:
-                    print("Exception occured while creating directory: {}".format(e))
-                    return None                
+                    raise ExportError("Exception occured while creating directory: {}".format(e))             
         else:
             # File will reside in the current working directory and will return filename.filetype
-            fp = str(filename)+'.'+str(filetype)
+            fp = Path(str(filename)+'.'+str(filetype))
         return fp
     return None
