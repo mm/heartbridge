@@ -1,7 +1,14 @@
 """Constants used throughout Heartbridge (mainly for field mapping or validation)
 """
 
-from .data import HeartRateReading, StepsReading, FlightsClimbedReading
+from .data import (
+    CyclingDistanceReading,
+    HeartRateReading,
+    HeartRateVariabilityReading, 
+    RestingHeartRateReading, 
+    StepsReading, 
+    FlightsClimbedReading
+)
 from .export import CSVExporter, JSONExporter
 
 
@@ -13,6 +20,9 @@ EXPORT_CLS_MAP = {
 READING_MAPPING = {
     'heart-rate': HeartRateReading,
     'heart-rate-legacy': HeartRateReading,
+    'resting-heart-rate': RestingHeartRateReading,
+    'heart-rate-variability': HeartRateVariabilityReading,
+    'cycling-distance': CyclingDistanceReading,
     'steps': StepsReading,
     'flights-climbed': FlightsClimbedReading
 }

@@ -38,11 +38,37 @@ class HeartRateReading(BaseHealthReading):
     def to_dict(self):
         return {
             'timestamp': self.timestamp_string,
-            'heart_rate': round(self.heart_rate, 1)
+            'heart_rate': self.heart_rate
         }
 
     def __post_init__(self, value):
         self.heart_rate = int(value)
+
+@dataclass(order=True)
+class RestingHeartRateReading(BaseHealthReading):
+    resting_heart_rate: int = None
+
+    def to_dict(self):
+        return {
+            'timestamp': self.timestamp_string,
+            'resting_heart_rate': self.resting_heart_rate
+        }
+
+    def __post_init__(self, value):
+        self.resting_heart_rate = int(value)
+
+@dataclass(order=True)
+class HeartRateVariabilityReading(BaseHealthReading):
+    heart_rate_variability: float = None
+
+    def to_dict(self):
+        return {
+            'timestamp': self.timestamp_string,
+            'heart_rate_variability': self.heart_rate_variability
+        }
+
+    def __post_init__(self, value):
+        self.heart_rate_variability = round(float(value), 2)
 
 @dataclass(order=True)
 class StepsReading(BaseHealthReading):
@@ -70,3 +96,18 @@ class FlightsClimbedReading(BaseHealthReading):
 
     def __post_init__(self, value):
         self.climbed = int(value)
+
+
+@dataclass(order=True)
+class CyclingDistanceReading(BaseHealthReading):
+    distance_cycled: float = None
+
+    def to_dict(self):
+        return {
+            'timestamp': self.timestamp_string,
+            'distance_cycled': self.distance_cycled
+        }
+
+    def __post_init__(self, value):
+        self.distance_cycled = float(value)
+

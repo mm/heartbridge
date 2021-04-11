@@ -37,12 +37,16 @@ async def capture_health_data(request):
         return JSONResponse({'message': 'Issues occured while processing data'}, status_code=400)
 
     print('\u001b[33m'+f'Loaded health data with {len(health.readings)} samples.'+'\033[0m')
-    try:
-        export_filename = health.export()
-        print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
-        return JSONResponse({'message': 'Data processed'}, status_code=200)
-    except ExportError as ee:
-        logging.error(f"Error exporting data to file: {ee}")
+    if len(health.readings) > 0:
+        try:
+            export_filename = health.export()
+            print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
+            return JSONResponse({'message': 'Data exported successfully'}, status_code=200)
+        except ExportError as ee:
+            logging.error(f"Error exporting data to file: {ee}")
+    else:
+        print("No data was found in body from Shortcuts. Export will not continue.")
+        return JSONResponse({'message': 'No data was passed in the payload from Shortcuts; no data exported'}, status_code=400)
 
 routes = [
     Route("/", endpoint=capture_health_data, methods=['POST'])
