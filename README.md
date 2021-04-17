@@ -2,7 +2,7 @@
 
 ![Python Package Tests](https://github.com/mm/heartbridge/actions/workflows/python-package.yml/badge.svg)
 
-Heartbridge is a command-line tool that exports health data from your iOS device to your local computer, with the help of an iOS Shortcut. It supports exporting lots of types of data from the Health app, including:
+Heartbridge is a command-line tool that exports health data from your iOS device to your local computer, with the help of an iOS Shortcut. It supports exporting many types of data from the Health app, including:
 
 - Heart Rate
 - Resting Heart Rate
@@ -69,12 +69,25 @@ The script will output information about the data it receives from the shortcut 
 
 7. The program will continue to run and listen for new data until stopped. Stop running the server (Ctrl-C) whenever you're finished exporting all the data you need. Enjoy exploring your health data!
 
-## All Command Line Options:
+## All Command Line Options
 
-* ```--help```: Prints help text.
-* ```--directory```: Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.
-* ```--type```: Set the output file type. Can be csv or json. Defaults to csv.
-* ```--port```: Set the port to listen for HTTP requests on. Defaults to 8888.
+```shell
+Usage: heartbridge [OPTIONS]
+
+  Opens a temporary HTTP endpoint to send health data from Shortcuts to your
+  computer.
+
+Options:
+  --directory DIRECTORY  Set the output directory for exported files. Defaults
+                         to current directory. Will create directory if it
+                         doesn not already exist.
+
+  --type [csv|json]      Set the output file type. Can be csv or json.
+                         Defaults to csv.
+
+  --port INTEGER RANGE   Set the port to listen for HTTP requests on. Defaults
+                         to 8888.
+```
 
 ## Using Heartbridge without the CLI
 

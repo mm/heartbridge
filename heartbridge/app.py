@@ -70,7 +70,7 @@ app = Starlette(
 @click.option(
     "--directory",
     default=None,
-    help="Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.",
+    help="Set the output directory for exported files. Defaults to current directory. Will create directory if it does not already exist.",
     type=click.Path(exists=False, file_okay=False),
 )
 @click.option(
