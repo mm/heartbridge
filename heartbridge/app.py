@@ -11,7 +11,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 from heartbridge.health import Health
-from heartbridge.exceptions import ValidationError, LoadingError, ExportError
+from heartbridge.exception_handlers import EXCEPTION_HANDLER_MAPPING
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.ERROR)
 
@@ -22,37 +22,25 @@ async def capture_health_data(request):
         logging.error("Error parsing JSON data; ensure valid JSON was sent to the endpoint")
         return JSONResponse({'message': 'Could not read JSON data from Shortcuts'}, status_code=400)
     
-    record_type = health_data.get('type')
-    if record_type:
-        print(f'Detected {record_type} data.')
+    record_type = health_data.get('type', 'health')
     health = Health(app.state.OUTPUT_DIRECTORY, app.state.OUTPUT_FORMAT)
 
-    try:
-        health.load_from_shortcuts(health_data)
-    except ValidationError as ve:
-        logging.error(f"Validation error occured while loading data: {ve}")
-        return JSONResponse({'message': 'Invalid data passed'}, status_code=422)
-    except LoadingError as le:
-        logging.error(f"An issue occured while loading data: {le}")
-        return JSONResponse({'message': 'Issues occured while processing data'}, status_code=400)
+    health.load_from_shortcuts(health_data)
 
-    print('\u001b[33m'+f'Loaded health data with {len(health.readings)} samples.'+'\033[0m')
+    click.echo('\u001b[33m\U0001F49B'+f' Detected {record_type} data with {len(health.readings)} samples.'+'\033[0m')
     if len(health.readings) > 0:
-        try:
-            export_filename = health.export()
-            print('\033[92m'+f"Successfully exported data to {export_filename}"+'\033[0m')
-            return JSONResponse({'message': 'Data exported successfully'}, status_code=200)
-        except ExportError as ee:
-            logging.error(f"Error exporting data to file: {ee}")
+        export_filename = health.export()
+        click.echo('\033[92m\U00002705'+f" Successfully exported data to {export_filename}"+'\033[0m')
+        return JSONResponse({'message': 'Data exported successfully'}, status_code=200)
     else:
-        print("No data was found in body from Shortcuts. Export will not continue.")
+        click.echo(+" No data was found in body from Shortcuts. Export will not continue.")
         return JSONResponse({'message': 'No data was passed in the payload from Shortcuts; no data exported'}, status_code=400)
 
 routes = [
     Route("/", endpoint=capture_health_data, methods=['POST'])
 ]
 
-app = Starlette(debug=False, routes=routes)
+app = Starlette(debug=False, routes=routes, exception_handlers=EXCEPTION_HANDLER_MAPPING)
 
 @click.command()
 @click.option('--directory', default=None, help="Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.", type=click.Path(exists=False, file_okay=False))
@@ -65,5 +53,5 @@ def cli(directory: str, type:str, port:int):
     # Set app state variables, which get used during export:
     app.state.OUTPUT_DIRECTORY = directory
     app.state.OUTPUT_FORMAT = type
-    print("\U000026A1 Waiting to receive health data at http://{}:{}... (Press Ctrl+C to stop)".format(hostname, port))
+    click.echo("\U000026A1 Waiting to receive health data at http://{}:{}... (Press Ctrl+C to stop)".format(hostname, port))
     uvicorn.run(app, host='0.0.0.0', log_level='error', access_log=False, port=port)
