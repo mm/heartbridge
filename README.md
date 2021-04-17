@@ -25,30 +25,30 @@ You will need:
 
 1. Install heartbridge using [pip](https://pip.pypa.io/en/stable/) at a command line (or use the distribution packages under [releases](https://github.com/mm/heartbridge/releases)):
 
-```bash
-pip install heartbridge
-```
+    ```bash
+    pip install heartbridge
+    ```
 
 2. Afterwards, run `heartbridge` at your command line:
 
-```bash
-heartbridge
-```
+    ```bash
+    heartbridge
+    ```
 
 This will save all exported files to the current working directory in CSV format. You can override both of these things with the `--directory` and `--type` arguments. If I wanted JSON files on my desktop instead, I could go with:
 
-```bash
-heartbridge --directory ~/Desktop --type json
-```
+    ```bash
+    heartbridge --directory ~/Desktop --type json
+    ```
 
 You can also change the port heartbridge will listen for data on (by default 8888) by passing an argument to `port`. For a full list of arguments you can pass, type `heartbridge --help`.
 
 3. Make note of the endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://matt-mac.local:8888```:
 
-```shell
-➜ ~ heartbridge
-⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
-```
+    ```shell
+    ➜ ~ heartbridge
+    ⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
+    ```
 
 4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/22bb56e73c354d9aa76a3678548dfe3a). It will ask you what the HTTP endpoint URL you just noted is.
 
@@ -60,12 +60,12 @@ You can also change the port heartbridge will listen for data on (by default 888
 
 The script will output information about the data it receives from the shortcut to the console:
 
-```shell
-➜ ~ heartbridge
-⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
-💛 Detected Heart Rate data with 8429 samples.
-✅ Successfully exported data to /Users/mattmascioni/heart-rate-Apr01-2021-Apr16-2021.csv
-```
+    ```shell
+    ➜ ~ heartbridge
+    ⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
+    💛 Detected Heart Rate data with 8429 samples.
+    ✅ Successfully exported data to /Users/mattmascioni/heart-rate-Apr01-2021-Apr16-2021.csv
+    ```
 
 7. The program will continue to run and listen for new data until stopped. Stop running the server (Ctrl-C) whenever you're finished exporting all the data you need. Enjoy exploring your health data!
 
