@@ -5,7 +5,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='heartbridge',
-    version='2.0.2',
+    version='2.0.0',
     description='Command line tool to transfer heart rate and other data from iOS Health to your computer. Works with a companion iOS shortcut.',
     author='Matthew Mascioni',
     author_email='mascionim@gmail.com',
