@@ -1,25 +1,27 @@
-# Heartbridge: iOS Heart Rate Data Export
+# Heartbridge: iOS Health Data Export
 
-[![Build Status](https://travis-ci.com/mm/heartbridge.svg?token=yXBeMYKrVPs7F4WBmP1R&branch=master)](https://travis-ci.com/mm/heartbridge)
+![Python Package Tests](https://github.com/mm/heartbridge/actions/workflows/python-package.yml/badge.svg)
 
-Combined with an Apple Watch, the iOS Health app contains a wealth of heart rate readings. I always found these readings a little difficult to play with in the Health app, and couldn't find a way to easily export them to a format I could manipulate/visualize the readings using (like a JSON or CSV file).
+Heartbridge is a command-line tool that exports health data from your iOS device to your local computer, with the help of an iOS Shortcut. It supports exporting lots of types of data from the Health app, including:
 
-Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app, accessing this data is a lot easier. This combines a shortcut with a quick HTTP endpoint to transfer heart rate data from your iOS device to your Mac or PC. It was a fun little experiment for me to see how these two could work together. It has no dependencies besides what's already included in the Python standard library.
+- Heart Rate
+- Resting Heart Rate
+- Heart Rate Variability
+- Steps
+- Flights Climbed
+- Cycling Distance
 
-Heartbridge is a command-line program that can receive data from Shortcuts (via HTTP), automatically export it to the directory of your choosing (in CSV or JSON format) and automatically name files according to what date range they cover. Exported files contain a time stamp ("Start Date" in Health) and heart rate ("Value" in Health).
+Heartbridge receives data from the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app (via HTTP), automatically exports it to the directory of your choosing (in CSV or JSON format) and automatically names files according to the health data type and date range they cover. Exported files contain a time stamp ("Start Date" in Health) and reading ("Value" in Health).
 
-**_Note_**: This is designed to be run on your local computer! It wasn't made to be deployed to a server or anything and is not production ready. Only run if you trust the devices on your local network.
+If you don't want to use the built-in CLI or server, you can also use Heartbridge to parse data from Shortcuts directly-- for example, if you wanted to automatically push data to a database on your own server.
 
-## Requirements
-
-You will need two things:
-
-* A computer with Python (>=3.6) installed
-* An iPhone with [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) installed, on the same network
-
-On the first run, the shortcut will prompt for access to your Health data (particularly heart rate data).
+**_Note_**: The CLI is designed to be run on your local computer! It's not production ready; only run if you trust the devices on your local network.
 
 ## Getting Started
+
+You will need:
+* A computer with Python (>=3.8) installed
+* An iPhone with [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) installed, on the same network
 
 1. Install heartbridge using [pip](https://pip.pypa.io/en/stable/) at a command line (or use the distribution packages under [releases](https://github.com/mm/heartbridge/releases)):
 
@@ -65,6 +67,12 @@ The script will output information about the data it receives from the shortcut 
 * ```--port```: Set the port to listen for HTTP requests on. Defaults to 8888.
 
 ## Notes
+
+### Motivation for this project
+
+Combined with an Apple Watch, the iOS Health app contains a wealth of heart rate and other health readings. I always found these readings a little difficult to play with in the Health app, and couldn't find a way to easily export them to a format I could manipulate/visualize the readings using (like a JSON or CSV file).
+
+Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app, accessing this data is a lot easier. This combines a shortcut with a quick HTTP endpoint to transfer heart rate data from your iOS device to your Mac or PC. It was a fun little experiment for me to see how these two could work together.
 
 ### Shortcuts data format
 
