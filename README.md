@@ -35,13 +35,13 @@ You will need:
     heartbridge
     ```
 
-This will save all exported files to the current working directory in CSV format. You can override both of these things with the `--directory` and `--type` arguments. If I wanted JSON files on my desktop instead, I could go with:
+    This will save all exported files to the current working directory in CSV format. You can override both of these things with the `--directory` and `--type` arguments. If I wanted JSON files on my desktop instead, I could go with:
 
     ```bash
     heartbridge --directory ~/Desktop --type json
     ```
 
-You can also change the port heartbridge will listen for data on (by default 8888) by passing an argument to `port`. For a full list of arguments you can pass, type `heartbridge --help`.
+    You can also change the port heartbridge will listen for data on (by default 8888) by passing an argument to `port`. For a full list of arguments you can pass, type `heartbridge --help`.
 
 3. Make note of the endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://matt-mac.local:8888```:
 
