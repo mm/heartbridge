@@ -56,9 +56,9 @@ You can also change the port heartbridge will listen for data on (by default 888
 
 6. Run the shortcut! You will be prompted to select the date range you want to cover. The end date of the date range you specify is not included in the data returned. For example, to get all data for May 2nd, 2020:
 
-![To select all data for May 2nd, 2020, you would select a date range between May 2nd and 3rd](https://raw.githubusercontent.com/mm/heartbridge/master/img/shortcut-iPhone.jpeg)
+    ![To select all data for May 2nd, 2020, you would select a date range between May 2nd and 3rd](https://raw.githubusercontent.com/mm/heartbridge/master/img/shortcut-iPhone.jpeg)
 
-The script will output information about the data it receives from the shortcut to the console:
+    The script will output information about the data it receives from the shortcut to the console:
 
     ```shell
     ➜ ~ heartbridge
