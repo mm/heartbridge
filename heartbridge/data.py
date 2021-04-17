@@ -6,6 +6,7 @@ from dataclasses import dataclass, fields, InitVar
 from typing import ClassVar
 from datetime import datetime
 
+
 @dataclass(order=True)
 class BaseHealthReading:
     timestamp: datetime
@@ -17,14 +18,14 @@ class BaseHealthReading:
 
     @property
     def timestamp_string(self) -> str:
-        return datetime.strftime(self.timestamp, '%Y-%m-%d %H:%M:%S')
+        return datetime.strftime(self.timestamp, "%Y-%m-%d %H:%M:%S")
 
     def get_value(self):
         """Gets the value of a health reading, determined by the `value_attribute`
         class variable.
         """
-        if self.__annotations__.get('value_attribute'):
-            value_key = getattr(self, 'value_attribute')
+        if self.__annotations__.get("value_attribute"):
+            value_key = getattr(self, "value_attribute")
             return self.__getattribute__(value_key)
         return None
 
@@ -32,12 +33,13 @@ class BaseHealthReading:
         """Converts the data object to a dictionary. Call only
         on a subclass of BaseHealthReading.
         """
-        if self.__annotations__.get('value_attribute'):
-            value_key = getattr(self, 'value_attribute')
+        if self.__annotations__.get("value_attribute"):
+            value_key = getattr(self, "value_attribute")
             return {
-                'timestamp': self.timestamp_string,
-                value_key: self.__getattribute__(value_key)
+                "timestamp": self.timestamp_string,
+                value_key: self.__getattribute__(value_key),
             }
+
 
 @dataclass(order=True)
 class GenericHealthReading(BaseHealthReading):
@@ -47,6 +49,7 @@ class GenericHealthReading(BaseHealthReading):
     def __post_init__(self, value):
         self.reading = value
 
+
 @dataclass(order=True)
 class HeartRateReading(BaseHealthReading):
     heart_rate: float = None
@@ -54,6 +57,7 @@ class HeartRateReading(BaseHealthReading):
 
     def __post_init__(self, value):
         self.heart_rate = int(value)
+
 
 @dataclass(order=True)
 class RestingHeartRateReading(BaseHealthReading):
@@ -63,6 +67,7 @@ class RestingHeartRateReading(BaseHealthReading):
     def __post_init__(self, value):
         self.resting_heart_rate = int(value)
 
+
 @dataclass(order=True)
 class HeartRateVariabilityReading(BaseHealthReading):
     heart_rate_variability: float = None
@@ -70,6 +75,7 @@ class HeartRateVariabilityReading(BaseHealthReading):
 
     def __post_init__(self, value):
         self.heart_rate_variability = round(float(value), 2)
+
 
 @dataclass(order=True)
 class StepsReading(BaseHealthReading):
@@ -96,4 +102,3 @@ class CyclingDistanceReading(BaseHealthReading):
 
     def __post_init__(self, value):
         self.distance_cycled = float(value)
-
