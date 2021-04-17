@@ -2,5 +2,5 @@
 
 import heartbridge.app as app
 
-if __name__ == '__main__':
-    app.main()
+if __name__ == "__main__":
+    app.cli()
