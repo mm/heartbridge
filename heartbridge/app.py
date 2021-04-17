@@ -33,7 +33,7 @@ async def capture_health_data(request):
         click.echo('\033[92m\U00002705'+f" Successfully exported data to {export_filename}"+'\033[0m')
         return JSONResponse({'message': 'Data exported successfully'}, status_code=200)
     else:
-        click.echo(+" No data was found in body from Shortcuts. Export will not continue.")
+        click.echo("No data was found in body from Shortcuts. Export will not continue.")
         return JSONResponse({'message': 'No data was passed in the payload from Shortcuts; no data exported'}, status_code=400)
 
 routes = [
