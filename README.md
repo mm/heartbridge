@@ -143,7 +143,7 @@ For example, if Steps data was sent, the resulting CSV file would have `timestam
 
 Combined with an Apple Watch, the iOS Health app contains a wealth of heart rate and other health readings. I always found these readings a little difficult to play with in the Health app, and couldn't find a way to easily export them to a format I could manipulate/visualize the readings using (like a JSON or CSV file).
 
-Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app, accessing this data is a lot easier. This combines a shortcut with a quick HTTP endpoint to transfer heart rate data from your iOS device to your Mac or PC. It was a fun little experiment for me to see how these two could work together.
+Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app, accessing this data is a lot easier. This combines a shortcut with a quick HTTP endpoint to transfer heart rate data from your iOS device to your Mac or PC. It was a fun little experiment for me to see how these two could work together. The original version of Heartbridge was for heart rate data only, but now it can work with more sample types!
 
 ### Shortcuts data format
 
