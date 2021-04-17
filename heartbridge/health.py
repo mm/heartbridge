@@ -38,6 +38,17 @@ class Health:
 
         # Infer reading type from input dictionary:
         reading_type = self._extract_record_type(data)
+
+        # In cases where there's only one record, Shortcuts will send a string instead of a list.
+        # We'll check if this happened and coerce everything into a list, before parsing.
+        if (reading_type == LEGACY_RECORD_TYPE):
+            if (type(data['hrDates']) == str) and (type(data['hrValues']) == str):
+                data['hrDates'] = [data['hrDates']]
+                data['hrValues'] = [data['hrValues']]
+        else:
+            if (type(data['dates']) == str) and (type(data['values']) == str):
+                data['dates'] = [data['dates']]
+                data['values'] = [data['values']]
         
         if self._validate_input_fields(data, reading_type):
             self.reading_type_slug = reading_type

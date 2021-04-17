@@ -1,4 +1,3 @@
-from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 from heartbridge.app import app
 import test.sample_inputs as samples
@@ -6,17 +5,25 @@ import pathlib
 import pytest
 
 @pytest.mark.parametrize('output_format', ['csv', 'json'])
-def test_endpoint_validDataShouldReturn200(tmp_path, output_format):
+@pytest.mark.parametrize('input_data, expected_name', [
+    (samples.HR_TYPICAL_INPUT, 'heart-rate-Dec16-2019'),
+    (samples.HR_ONE_ITEM_INPUT, 'heart-rate-Dec16-2019'),
+    (samples.RESTING_HR_INPUT, 'resting-heart-rate-Apr10-2021-Apr12-2021'),
+    (samples.HRV_INPUT, 'heart-rate-variability-Apr05-2021-Apr10-2021'),
+    (samples.FLIGHTS_INPUT, 'flights-climbed-Apr05-2021'),
+    (samples.STEPS_INPUT, 'steps-Apr10-2021'),
+    (samples.CYCLING_INPUT, 'cycling-distance-Apr13-2021')
+])
+def test_endpoint_validDataShouldReturn200(tmp_path, output_format, input_data, expected_name):
     app.state.OUTPUT_DIRECTORY = str(tmp_path)
     app.state.OUTPUT_FORMAT = output_format
-    data = samples.HR_TYPICAL_INPUT
 
     client = TestClient(app)
-    response = client.post('/', json=data)
+    response = client.post('/', json=input_data)
 
-    file = pathlib.Path(tmp_path / 'heart-rate-Dec16-2019.{}'.format(output_format))
+    expected_file = pathlib.Path(tmp_path / '{}.{}'.format(expected_name, output_format))
     assert response.status_code == 200
-    assert file.exists()
+    assert expected_file.exists()
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize('output_format', ['csv', 'json'])
