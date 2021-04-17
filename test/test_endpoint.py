@@ -12,7 +12,8 @@ import pytest
     (samples.HRV_INPUT, 'heart-rate-variability-Apr05-2021-Apr10-2021'),
     (samples.FLIGHTS_INPUT, 'flights-climbed-Apr05-2021'),
     (samples.STEPS_INPUT, 'steps-Apr10-2021'),
-    (samples.CYCLING_INPUT, 'cycling-distance-Apr13-2021')
+    (samples.CYCLING_INPUT, 'cycling-distance-Apr13-2021'),
+    (samples.GENERIC_INPUT, 'memes-sent-Apr13-2021')
 ])
 def test_endpoint_validDataShouldReturn200(tmp_path, output_format, input_data, expected_name):
     app.state.OUTPUT_DIRECTORY = str(tmp_path)

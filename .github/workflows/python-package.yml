@@ -1,4 +1,4 @@
-name: Python Package
+name: Test Suite
 
 on:
   push:

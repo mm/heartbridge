@@ -49,3 +49,9 @@ HR_ONE_ITEM_INPUT = {
     "dates": "2019-12-16 08:24:36",
     "values": "74"
 }
+
+GENERIC_INPUT = {
+    "type": "Memes Sent",
+    "dates": ["2021-04-13 23:29:00"],
+    "values": ["90"]
+}

@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from heartbridge import Health
 from heartbridge.exceptions import LoadingError, ValidationError
-from heartbridge.constants import LEGACY_RECORD_TYPE, DATE_PARSE_STRING
+from heartbridge.constants import LEGACY_RECORD_TYPE
 import test.sample_inputs as samples
 
 @pytest.mark.parametrize("input_data, expected", [
