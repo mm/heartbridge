@@ -3,6 +3,7 @@ class is a different record type from the Health app.
 """
 
 from dataclasses import dataclass, fields, InitVar
+from typing import ClassVar
 from datetime import datetime
 
 @dataclass(order=True)
@@ -18,15 +19,30 @@ class BaseHealthReading:
     def timestamp_string(self) -> str:
         return datetime.strftime(self.timestamp, '%Y-%m-%d %H:%M:%S')
 
+    def get_value(self):
+        """Gets the value of a health reading, determined by the `value_attribute`
+        class variable.
+        """
+        if self.__annotations__.get('value_attribute'):
+            value_key = getattr(self, 'value_attribute')
+            return self.__getattribute__(value_key)
+        return None
+
+    def to_dict(self):
+        """Converts the data object to a dictionary. Call only
+        on a subclass of BaseHealthReading.
+        """
+        if self.__annotations__.get('value_attribute'):
+            value_key = getattr(self, 'value_attribute')
+            return {
+                'timestamp': self.timestamp_string,
+                value_key: self.__getattribute__(value_key)
+            }
+
 @dataclass(order=True)
 class GenericHealthReading(BaseHealthReading):
     reading: str = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'reading': self.reading
-        }
+    value_attribute: ClassVar[str] = "reading"
 
     def __post_init__(self, value):
         self.reading = value
@@ -34,12 +50,7 @@ class GenericHealthReading(BaseHealthReading):
 @dataclass(order=True)
 class HeartRateReading(BaseHealthReading):
     heart_rate: float = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'heart_rate': self.heart_rate
-        }
+    value_attribute: ClassVar[str] = "heart_rate"
 
     def __post_init__(self, value):
         self.heart_rate = int(value)
@@ -47,12 +58,7 @@ class HeartRateReading(BaseHealthReading):
 @dataclass(order=True)
 class RestingHeartRateReading(BaseHealthReading):
     resting_heart_rate: int = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'resting_heart_rate': self.resting_heart_rate
-        }
+    value_attribute: ClassVar[str] = "resting_heart_rate"
 
     def __post_init__(self, value):
         self.resting_heart_rate = int(value)
@@ -60,12 +66,7 @@ class RestingHeartRateReading(BaseHealthReading):
 @dataclass(order=True)
 class HeartRateVariabilityReading(BaseHealthReading):
     heart_rate_variability: float = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'heart_rate_variability': self.heart_rate_variability
-        }
+    value_attribute: ClassVar[str] = "heart_rate_variability"
 
     def __post_init__(self, value):
         self.heart_rate_variability = round(float(value), 2)
@@ -73,12 +74,7 @@ class HeartRateVariabilityReading(BaseHealthReading):
 @dataclass(order=True)
 class StepsReading(BaseHealthReading):
     step_count: int = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'step_count': self.step_count
-        }
+    value_attribute: ClassVar[str] = "step_count"
 
     def __post_init__(self, value):
         self.step_count = int(value)
@@ -87,12 +83,7 @@ class StepsReading(BaseHealthReading):
 @dataclass(order=True)
 class FlightsClimbedReading(BaseHealthReading):
     climbed: int = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'climbed': self.climbed
-        }
+    value_attribute: ClassVar[str] = "climbed"
 
     def __post_init__(self, value):
         self.climbed = int(value)
@@ -101,12 +92,7 @@ class FlightsClimbedReading(BaseHealthReading):
 @dataclass(order=True)
 class CyclingDistanceReading(BaseHealthReading):
     distance_cycled: float = None
-
-    def to_dict(self):
-        return {
-            'timestamp': self.timestamp_string,
-            'distance_cycled': self.distance_cycled
-        }
+    value_attribute: ClassVar[str] = "distance_cycled"
 
     def __post_init__(self, value):
         self.distance_cycled = float(value)

@@ -5,7 +5,7 @@ with open('README.md', encoding='utf-8') as f:
 
 setup(
     name='heartbridge',
-    version='1.0.0',
+    version='2.0.0',
     description='Command line tool to transfer heart rate data from iOS Health to your computer. Works with a companion iOS shortcut.',
     author='Matthew Mascioni',
     author_email='mascionim@gmail.com',
@@ -19,13 +19,12 @@ setup(
         ],
     },
     classifiers = [
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Environment :: Console',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8'
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9'
     ],
     keywords='heartrate apple watch shortcuts',
     python_requires='>=3.8',

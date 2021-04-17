@@ -45,19 +45,29 @@ You can also change the port heartbridge will listen for data on (by default 888
 
 3. Make note of the endpoint URL the script prints out, and ensure the script is allowed to accept incoming connections if your firewall prompts you. In this case, mine would be ```http://matt-mac.local:8888```:
 
-![The line of terminal output "Waiting to receive heart rate sample data at http://matt-mac.local:8888" tells me that my endpoint URL is http://matt-mac.local:8888](https://raw.githubusercontent.com/mm/heartbridge/master/img/endpoint-image.png)
+```shell
+➜ ~ heartbridge
+⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
+```
 
-4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/e4257a3986354ca79c8618c4e480bd5a). It will ask you what the HTTP endpoint URL you just noted is.
+4. On your iPhone, [download the shortcut to extract Health samples](https://www.icloud.com/shortcuts/22bb56e73c354d9aa76a3678548dfe3a). It will ask you what the HTTP endpoint URL you just noted is.
 
-5. Run the shortcut! You will be prompted to select the date range you want to cover. The end date of the date range you specify is not included in the data returned. For example, to get all data for May 2nd, 2020:
+5. Open up the Shortcut. In the first step, you can change "Type" to be whatever data you're trying to export (Heart Rate is selected by default).
+
+6. Run the shortcut! You will be prompted to select the date range you want to cover. The end date of the date range you specify is not included in the data returned. For example, to get all data for May 2nd, 2020:
 
 ![To select all data for May 2nd, 2020, you would select a date range between May 2nd and 3rd](https://raw.githubusercontent.com/mm/heartbridge/master/img/shortcut-iPhone.jpeg)
 
 The script will output information about the data it receives from the shortcut to the console:
 
-![Information about the data received by the script (number of samples and path of the file produced) is outputted to the console](https://raw.githubusercontent.com/mm/heartbridge/master/img/script-output.png)
+```shell
+➜ ~ heartbridge
+⚡ Waiting to receive health data at http://matt-mac.local:8888... (Press Ctrl+C to stop)
+💛 Detected Heart Rate data with 8429 samples.
+✅ Successfully exported data to /Users/mattmascioni/heart-rate-Apr01-2021-Apr16-2021.csv
+```
 
-6. The program will continue to run and listen for new data until stopped. Stop running the script (Ctrl-C) whenever you're finished exporting all the data you need. Enjoy exploring your heart rate data!
+7. The program will continue to run and listen for new data until stopped. Stop running the server (Ctrl-C) whenever you're finished exporting all the data you need. Enjoy exploring your health data!
 
 ## All Command Line Options:
 
@@ -65,6 +75,36 @@ The script will output information about the data it receives from the shortcut 
 * ```--directory```: Set the output directory for exported files. Defaults to current directory. Will create directory if it doesn't already exist.
 * ```--type```: Set the output file type. Can be csv or json. Defaults to csv.
 * ```--port```: Set the port to listen for HTTP requests on. Defaults to 8888.
+
+## Using Heartbridge without the CLI
+
+Typing `heartbridge` in a shell opens up a temporary server to send data from the shortcut to your computer. If you don't want this behaviour (for example, if you already have a server that can accept the JSON data Shortcuts sends), you can use Heartbridge's Shortcuts data parsing tools directly, which are contained in the `Health` class. Say your endpoint stores the incoming request JSON in the `incoming_shortcuts_json` dict, you could then do things with the readings using: 
+
+```python
+>>> from heartbridge import Health
+
+>>> health = Health()
+>>> health.load_from_shortcuts(data=incoming_shortcuts_json)
+>>> first_reading = health.readings[0]
+>>> first_reading.timestamp
+datetime.datetime(2021, 4, 17, 14, 16, 31, 780731)
+>>> first_reading.get_value()
+40
+>>> first_reading.to_dict()
+{'timestamp': '2021-04-17 14:16:31', 'heart_rate': 40}
+```
+
+`health.readings` is a list of `BaseHealthReading`-subclassed data objects. Depending on the health data passed in, the class may be one of:
+
+- Heart Rate: `HeartRateReading`
+- Resting Heart Rate: `RestingHeartRateReading`
+- Heart Rate Variability: `HeartRateVariabilityReading`
+- Steps: `StepsReading`
+- Flights Climbed: `FlightsClimbedReading`
+- Cycling Distance: `CyclingDistanceReading`
+- All others: `GenericHealthReading`
+
+No matter what the class is, you can always access the `record.get_value()` and `record.to_dict()` methods to get the health sample value/dictionary representation respectively, and `.timestamp` property to get the health "Start Date" of the reading as a datetime.
 
 ## Notes
 
@@ -84,11 +124,12 @@ This returns a result set of health samples including the start date of the read
 
 ```json
 {
-    "hrDates": ["2019-12-16 08:24:36","2019-12-16 08:26:39",...],
-    "hrValues": ["74","72",...]
+    "type": "Heart Rate",
+    "dates": ["2019-12-16 08:24:36","2019-12-16 08:26:39",...],
+    "values": ["74","72",...]
 }
 ```
 
-Both the ```hrDates``` and ```hrValues``` list is ordered in ascending order by start date. Doing it this way allowed me to avoid using a "Repeat with Each..." action on the health sample set which introduced a lot of slowness to the shortcut. 
+Both the ```dates``` and ```values``` list is ordered in ascending order by start date. Doing it this way allowed me to avoid using a "Repeat with Each..." action on the health sample set which introduced a lot of slowness to the shortcut. 
 
-Among other things, the Python script is used to combine those two arrays into a list of tuples. The above JSON would be transformed into ```[("2019-12-16 08:24:36", 74.0), ("2019-12-16 08:26:39", 72.0)]``` by the script, once it's received in an HTTP POST request. It's then converted to a CSV or JSON file. 
+Among other things, the Python script is used to combine those two arrays into a list of tuples. The above JSON would be transformed into ```[("2019-12-16 08:24:36", 74), ("2019-12-16 08:26:39", 72)]``` by the script, once it's received in an HTTP POST request. It's then converted to a CSV or JSON file. 

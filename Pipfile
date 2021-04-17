@@ -15,3 +15,5 @@ python_version = "3.8"
 pytest = "*"
 heartbridge = {editable = true, path = "."}
 requests = "*"
+build = "*"
+twine = "*"
