@@ -11,7 +11,7 @@ Heartbridge is a command-line tool that exports health data from your iOS device
 - Flights Climbed
 - Cycling Distance
 
-Heartbridge receives data from the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app (via HTTP), automatically exports it to the directory of your choosing (in CSV or JSON format) and automatically names files according to the health data type and date range they cover. Exported files contain a time stamp ("Start Date" in Health) and reading ("Value" in Health).
+Heartbridge receives data from the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id915249334) app (via HTTP), automatically exports it to the directory of your choosing (in CSV or JSON format) and automatically names files according to the health data type and date range they cover. Exported files contain a time stamp ("Start Date" in Health) and reading ("Value" in Health). To read more about how the file exports look depending on the data type, check out [Data Type Support](#data-type-support).
 
 If you don't want to use the built-in CLI or server, you can also use Heartbridge to parse data from Shortcuts directly-- for example, if you wanted to automatically push data to a database on your own server.
 
@@ -85,6 +85,8 @@ Typing `heartbridge` in a shell opens up a temporary server to send data from th
 
 >>> health = Health()
 >>> health.load_from_shortcuts(data=incoming_shortcuts_json)
+>>> health.reading_type_slug
+'heart-rate'
 >>> first_reading = health.readings[0]
 >>> first_reading.timestamp
 datetime.datetime(2021, 4, 17, 14, 16, 31, 780731)
@@ -108,6 +110,22 @@ No matter what the class is, you can always access the `record.get_value()` and 
 
 ## Notes
 
+### Data Type Support
+
+Heartbridge supports pretty much any Health record exported by Shortcuts. For some health records, there's built in support for adding relevant headers/keys in the resulting CSV/JSON file:
+
+| Data Type              | Start Date Header/Key | Value Header/Key         |
+|------------------------|-----------------------|--------------------------|
+| Heart Rate             | `timestamp`           | `heart_rate`             |
+| Resting Heart Rate     | `timestamp`           | `resting_heart_rate`     |
+| Heart Rate Variability | `timestamp`           | `heart_rate_variability` |
+| Steps                  | `timestamp`           | `step_count`             |
+| Flights Climbed        | `timestamp`           | `climbed`                |
+| Cycling Distance       | `timestamp`           | `distance_cycled`        |
+| All other records      | `timestamp`           | `reading`                |
+
+For example, if Steps data was sent, the resulting CSV file would have `timestamp, step_count` headers.
+
 ### Motivation for this project
 
 Combined with an Apple Watch, the iOS Health app contains a wealth of heart rate and other health readings. I always found these readings a little difficult to play with in the Health app, and couldn't find a way to easily export them to a format I could manipulate/visualize the readings using (like a JSON or CSV file).
@@ -116,7 +134,7 @@ Fortunately with the [Shortcuts](https://apps.apple.com/us/app/shortcuts/id91524
 
 ### Shortcuts data format
 
-This wasn't trivial to me, so I figured I'd write a quick bit on how the Health data is pulled using Shortcuts to begin with. The shortcut uses the "Find All Health Samples where" action:
+The shortcut uses the "Find All Health Samples where" action:
 
 ![A screenshot of the "Find All Health Samples where" action](https://raw.githubusercontent.com/mm/heartbridge/master/img/find_action.jpeg)
 
